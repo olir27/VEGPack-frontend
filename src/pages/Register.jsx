@@ -780,7 +780,7 @@ const handleSubmit = async (e) => {
     setServerError("");
 
     await axios.post(
-      "http://localhost:5000/api/auth/register",
+      "https://vegpack-backend-1.onrender.com/api/auth/register",
       {
         name: form.name,
         email: form.email,
