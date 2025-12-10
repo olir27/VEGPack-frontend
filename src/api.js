@@ -239,7 +239,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:5000/api",
+  // baseURL: import.meta.env.VITE_API_BASE || "http://localhost:5000/api",
+  baseURL:'https://vegpack-backend-1.onrender.com/api',
   headers: { "Content-Type": "application/json" },
   withCredentials: true, // ✅ send cookies
 });
