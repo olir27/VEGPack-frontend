@@ -1403,7 +1403,7 @@ export default function OrderSuccess() {
                     <div className="text-right">
                       <p className="text-xs text-gray-500">Price</p>
                       <p className="font-semibold text-gray-800">
-                        LKR {comTotal || 0}
+                        LKR {lineTotal || 0}
                       </p>
                     </div>
                   </div>
