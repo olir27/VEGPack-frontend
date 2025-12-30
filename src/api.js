@@ -1,88 +1,3 @@
-// import axios from "axios";
-
-// // Base API instance
-// const api = axios.create({
-//   baseURL: "http://localhost:5000/api", // change to your backend URL
-//   headers: {"Content-Type": "application/json" },
-// });
-
-// // 🔐 Add JWT token automatically if logged in
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("token"); // JWT stored in localStorage
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
-
-// // Response interceptor to automatically unwrap data and handle errors
-// api.interceptors.response.use(
-//   (response) => response.data, // directly return data
-//   (error) => {
-//     console.error(error.response?.data || error.message);
-//     return Promise.reject(error.response?.data || { success: false, message: error.message });
-//   }
-// );
-
-
-
-// // ==================== Products ====================
-
-// // Get all products (vegetables + packages)
-// export const getProducts = (page = 1, limit = 20) => api.get(`/products?page=${page}&limit=${limit}`);
-
-// // Get by Id products (Veg/ Package)
-// export const getProductById = (id) => api.get(`/products/${id}`);
-
-
-// // Admin: create product
-// export const createProduct = (payload) => api.post("/products", payload);
-
-
-
-// // Admin: get all products including unapproved
-// export const getAllProductsAdmin = () => api.get("/products/admin");
-
-// // ==================== Cart ====================
-
-// // Get user's cart
-// export const getCart = () => api.get("/cart");
-
-// // Add item to cart
-// export const addToCart = (payload) => api.post("/cart/add", payload);
-
-// // Update cart item quantity
-// export const updateCartItem = (id, quantity) => api.put(`/cart/update/${id}`, { quantity });
-
-// // Delete cart item
-// export const deleteCartItem = (id) => api.delete(`/cart/remove/${id}`);
-
-// // Sync localStorage cart to backend
-// export const syncCart = (items) => api.post("/cart/sync", { items });
-
-
-// // ==================== Auth ====================
-
-// // Login
-// export const loginUser = async (email, password) => {
-//   const data = await api.post("/auth/login", { email, password });
-//   if (data.success && data.token) {
-//     localStorage.setItem("token", data.token);
-//   }
-//   return data;
-// };
-
-// // Register
-// export const registerUser = (payload) => api.post("/auth/register", payload);
-
-// // Logout
-// export const logoutUser = () => {
-//   localStorage.removeItem("token");
-// };
-
-// export default api;
-
-
 
 
 // // src/api.js
@@ -239,8 +154,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: import.meta.env.VITE_API_BASE || "http://localhost:5000/api",
-  baseURL:'https://vegpack-backend-1.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:5000/api",
+  // baseURL:'https://vegpack-backend-1.onrender.com/api',
   headers: { "Content-Type": "application/json" },
   withCredentials: true, // ✅ send cookies
 });
@@ -285,8 +200,12 @@ export const confirmCheckoutSession = (sessionId) =>
   api.post("/payments/checkout-success", { sessionId });
 
 // ========== PRODUCTS ==========
-export const getProducts = (page = 1, limit = 20) =>
-  api.get(`/products?page=${page}&limit=${limit}`);
+// export const getProducts = (page = 1, limit = 20) =>
+//   api.get(`/products?page=${page}&limit=${limit}`);
+export const getProducts = (page = 1, limit = 20, params = {}) => {
+  const query = new URLSearchParams({ page, limit, ...params }).toString();
+  return api.get(`/products?${query}`);
+};
 export const getProductById = (id) => api.get(`/products/${id}`);
 
 // ========== AUTH (helpers if you need) ==========

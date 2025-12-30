@@ -874,18 +874,269 @@
 //   );
 // }
 
+// // src/pages/Admin/Farmers.jsx
+// import { useState, useEffect } from "react";
+// import { 
+//   Search, 
+//   CheckCircle2, 
+//   XCircle, 
+//   Users, 
+//   Package, 
+//   Sprout, 
+//   AlertCircle 
+// } from "lucide-react";
+// import api from "../../api";
+
+// export default function Farmers() {
+//   const [farmers, setFarmers] = useState([]);
+//   const [stocks, setStocks] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   const fetchData = async () => {
+//     setLoading(true);
+//     try {
+//       const [resFarmers, resStocks] = await Promise.all([
+//         api.get("/admin/farmers"),
+//         api.get("/admin/farmer-stock")
+//       ]);
+
+//       if (resFarmers.success) setFarmers(resFarmers.farmers);
+//       if (resStocks.success) setStocks(resStocks.stocks);
+//     } catch (err) {
+//       console.error("Data fetch error:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchData();
+//   }, []);
+
+//   const approveStock = async (id) => {
+//     try {
+//       await api.put(`/admin/farmer-stock/approve/${id}`);
+//       // Optimistic update for faster UI
+//       setStocks((prev) => prev.map(s => s._id === id ? { ...s, approved: true } : s));
+//       // Re-fetch to ensure sync
+//       fetchData(); 
+//     } catch (err) {
+//       console.error("Approve stock error:", err);
+//     }
+//   };
+
+//   const rejectStock = async (id) => {
+//     if(!window.confirm("Are you sure you want to reject this stock listing?")) return;
+//     try {
+//       await api.delete(`/admin/farmer-stock/reject/${id}`);
+//       setStocks((prev) => prev.filter((s) => s._id !== id));
+//     } catch (err) {
+//       console.error("Reject stock error:", err);
+//     }
+//   };
+
+//   // Filter Logic
+//   const filteredFarmers = farmers.filter(farmer => 
+//     farmer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+//     farmer.email.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   // Stats Calculation
+//   const totalPending = stocks.filter(s => !s.approved).length;
+//   const totalFarmers = farmers.length;
+
+//   return (
+//     <div className="p-6 bg-gray-50 min-h-screen font-sans">
+      
+//       {/* --- Header Section --- */}
+//       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
+//         <div>
+//           <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight">
+//             Farmer Management
+//           </h2>
+//           <p className="text-gray-500 mt-1 text-sm">
+//             Manage registered farmers and approve their product listings.
+//           </p>
+//         </div>
+
+//         {/* Stats Cards */}
+//         <div className="flex gap-3">
+//           <div className="bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+//             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+//               <Users size={20} />
+//             </div>
+//             <div>
+//               <p className="text-xs text-gray-500 font-medium uppercase">Farmers</p>
+//               <p className="text-xl font-bold text-gray-800">{totalFarmers}</p>
+//             </div>
+//           </div>
+//           <div className="bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+//             <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+//               <Package size={20} />
+//             </div>
+//             <div>
+//               <p className="text-xs text-gray-500 font-medium uppercase">Pending</p>
+//               <p className="text-xl font-bold text-gray-800">{totalPending}</p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* --- Search Bar --- */}
+//       <div className="relative mb-8">
+//         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//           <Search className="h-5 w-5 text-gray-400" />
+//         </div>
+//         <input
+//           type="text"
+//           className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition shadow-sm"
+//           placeholder="Search farmers by name or email..."
+//           value={searchTerm}
+//           onChange={(e) => setSearchTerm(e.target.value)}
+//         />
+//       </div>
+
+//       {/* --- Main Grid Content --- */}
+//       {loading ? (
+//         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-pulse">
+//           {[1, 2, 3].map((n) => (
+//             <div key={n} className="h-64 bg-gray-200 rounded-2xl"></div>
+//           ))}
+//         </div>
+//       ) : (
+//         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+//           {filteredFarmers.map((farmer) => {
+//             const pendingStocks = stocks.filter(
+//               (s) => s.farmer?._id === farmer._id && !s.approved
+//             );
+
+//             return (
+//               <div
+//                 key={farmer._id}
+//                 className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 border border-gray-100 overflow-hidden transition-all duration-300 group flex flex-col"
+//               >
+//                 {/* Card Header */}
+//                 <div className="p-5 border-b border-gray-50 bg-gradient-to-r from-gray-50 to-white">
+//                   <div className="flex justify-between items-start">
+//                     <div className="flex items-center gap-3">
+//                       {/* Avatar Generator based on name */}
+//                       <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">
+//                         {farmer.name.charAt(0).toUpperCase()}
+//                       </div>
+//                       <div>
+//                         <h3 className="text-lg font-bold text-gray-800 group-hover:text-green-700 transition-colors">
+//                           {farmer.name}
+//                         </h3>
+//                         <p className="text-xs text-gray-500 font-mono">
+//                           {farmer.email}
+//                         </p>
+//                       </div>
+//                     </div>
+//                     {pendingStocks.length > 0 ? (
+//                       <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+//                         {pendingStocks.length} Pending
+//                       </span>
+//                     ) : (
+//                       <span className="bg-gray-100 text-gray-400 text-xs font-bold px-2 py-1 rounded-full">
+//                         Clear
+//                       </span>
+//                     )}
+//                   </div>
+//                 </div>
+
+//                 {/* Card Body (Stock List) */}
+//                 <div className="p-5 flex-1 flex flex-col">
+//                   {pendingStocks.length > 0 ? (
+//                     <div className="space-y-3">
+//                       <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+//                         Approvals Needed
+//                       </h4>
+//                       {pendingStocks.map((s) => (
+//                         <div
+//                           key={s._id}
+//                           className="bg-gray-50 rounded-xl p-3 border border-gray-100 hover:border-green-200 transition-colors"
+//                         >
+//                           <div className="flex justify-between items-start mb-2">
+//                             <div className="flex items-center gap-2">
+//                               <Sprout size={16} className="text-green-600" />
+//                               <span className="font-semibold text-gray-700 text-sm">
+//                                 {s.vegetable}
+//                               </span>
+//                             </div>
+//                             <span className="text-emerald-700 font-bold text-sm">
+//                               ₹{s.price}
+//                             </span>
+//                           </div>
+                          
+//                           <div className="flex justify-between items-center mt-3">
+//                             <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
+//                               Qty: {s.quantity}
+//                             </span>
+                            
+//                             <div className="flex gap-2">
+//                               <button
+//                                 onClick={() => approveStock(s._id)}
+//                                 className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all"
+//                                 title="Approve"
+//                               >
+//                                 <CheckCircle2 size={18} />
+//                               </button>
+//                               <button
+//                                 onClick={() => rejectStock(s._id)}
+//                                 className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
+//                                 title="Reject"
+//                               >
+//                                 <XCircle size={18} />
+//                               </button>
+//                             </div>
+//                           </div>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   ) : (
+//                     <div className="h-full flex flex-col items-center justify-center text-center py-6 opacity-60">
+//                       <CheckCircle2 size={40} className="text-green-200 mb-2" />
+//                       <p className="text-sm text-gray-400">All caught up!</p>
+//                       <p className="text-xs text-gray-300">No pending items for this farmer.</p>
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+//             );
+//           })}
+//         </div>
+//       )}
+
+//       {/* Empty State */}
+//       {!loading && filteredFarmers.length === 0 && (
+//         <div className="text-center py-20">
+//           <div className="bg-gray-100 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4">
+//             <Search size={32} className="text-gray-400" />
+//           </div>
+//           <h3 className="text-lg font-medium text-gray-900">No farmers found</h3>
+//           <p className="text-gray-500 max-w-sm mx-auto mt-2">
+//             We couldn't find any farmers matching your search. Try adjusting your filters.
+//           </p>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
 // src/pages/Admin/Farmers.jsx
 import { useState, useEffect } from "react";
-import { 
-  Search, 
-  CheckCircle2, 
-  XCircle, 
-  Users, 
-  Package, 
-  Sprout, 
-  AlertCircle 
+import {
+  Search,
+  CheckCircle2,
+  XCircle,
+  Users,
+  Package,
+  Sprout,
 } from "lucide-react";
 import api from "../../api";
+import "./Farmers.css";
 
 export default function Farmers() {
   const [farmers, setFarmers] = useState([]);
@@ -898,11 +1149,11 @@ export default function Farmers() {
     try {
       const [resFarmers, resStocks] = await Promise.all([
         api.get("/admin/farmers"),
-        api.get("/admin/farmer-stock")
+        api.get("/admin/farmer-stock"),
       ]);
 
-      if (resFarmers.success) setFarmers(resFarmers.farmers);
-      if (resStocks.success) setStocks(resStocks.stocks);
+      if (resFarmers.success) setFarmers(resFarmers.farmers || []);
+      if (resStocks.success) setStocks(resStocks.stocks || []);
     } catch (err) {
       console.error("Data fetch error:", err);
     } finally {
@@ -917,17 +1168,22 @@ export default function Farmers() {
   const approveStock = async (id) => {
     try {
       await api.put(`/admin/farmer-stock/approve/${id}`);
-      // Optimistic update for faster UI
-      setStocks((prev) => prev.map(s => s._id === id ? { ...s, approved: true } : s));
-      // Re-fetch to ensure sync
-      fetchData(); 
+      setStocks((prev) =>
+        prev.map((s) => (s._id === id ? { ...s, approved: true } : s))
+      );
+      fetchData();
     } catch (err) {
       console.error("Approve stock error:", err);
     }
   };
 
   const rejectStock = async (id) => {
-    if(!window.confirm("Are you sure you want to reject this stock listing?")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to reject this stock listing?"
+      )
+    )
+      return;
     try {
       await api.delete(`/admin/farmer-stock/reject/${id}`);
       setStocks((prev) => prev.filter((s) => s._id !== id));
@@ -937,189 +1193,213 @@ export default function Farmers() {
   };
 
   // Filter Logic
-  const filteredFarmers = farmers.filter(farmer => 
-    farmer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    farmer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredFarmers = farmers.filter(
+    (farmer) =>
+      farmer.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      farmer.email
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
-  // Stats Calculation
-  const totalPending = stocks.filter(s => !s.approved).length;
+  // Stats
+  const totalPending = stocks.filter((s) => !s.approved).length;
   const totalFarmers = farmers.length;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen font-sans">
-      
-      {/* --- Header Section --- */}
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-gray-800 tracking-tight">
-            Farmer Management
-          </h2>
-          <p className="text-gray-500 mt-1 text-sm">
-            Manage registered farmers and approve their product listings.
-          </p>
-        </div>
+    <div className="farmers-page">
+      <div className="farmers-container custom-scrollbar">
+        {/* Header + Stats */}
+        <div className="farmers-header">
+          <div>
+            <h2 className="farmers-header__title">
+              Farmer Management
+            </h2>
+            <p className="farmers-header__subtitle">
+              Manage registered farmers and approve their product
+              listings.
+            </p>
+          </div>
 
-        {/* Stats Cards */}
-        <div className="flex gap-3">
-          <div className="bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-              <Users size={20} />
+          <div className="farmers-stats">
+            <div className="farmers-stat-card farmers-stat-card--farmers">
+              <div>
+                <p className="farmers-stat-label">Farmers</p>
+                <p className="farmers-stat-value">{totalFarmers}</p>
+              </div>
+              <div className="farmers-stat-icon farmers-stat-icon--blue">
+                <Users size={20} />
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-gray-500 font-medium uppercase">Farmers</p>
-              <p className="text-xl font-bold text-gray-800">{totalFarmers}</p>
+            <div className="farmers-stat-card farmers-stat-card--pending">
+              <div>
+                <p className="farmers-stat-label">Pending</p>
+                <p className="farmers-stat-value">{totalPending}</p>
+              </div>
+              <div className="farmers-stat-icon farmers-stat-icon--amber">
+                <Package size={20} />
+              </div>
             </div>
           </div>
-          <div className="bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
-            <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
-              <Package size={20} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-medium uppercase">Pending</p>
-              <p className="text-xl font-bold text-gray-800">{totalPending}</p>
-            </div>
+        </div>
+
+        {/* Search */}
+        <div className="farmers-search">
+          <span className="farmers-search__icon">
+            <Search size={18} />
+          </span>
+          <input
+            type="text"
+            className="farmers-search__input"
+            placeholder="Search farmers by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="farmers-skeleton-grid">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="farmer-skeleton-card" />
+            ))}
           </div>
-        </div>
-      </div>
+        ) : (
+          <>
+            {filteredFarmers.length > 0 ? (
+              <div className="farmers-grid">
+                {filteredFarmers.map((farmer) => {
+                  const pendingStocks = stocks.filter(
+                    (s) =>
+                      s.farmer?._id === farmer._id && !s.approved
+                  );
 
-      {/* --- Search Bar --- */}
-      <div className="relative mb-8">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition shadow-sm"
-          placeholder="Search farmers by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      {/* --- Main Grid Content --- */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-pulse">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="h-64 bg-gray-200 rounded-2xl"></div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredFarmers.map((farmer) => {
-            const pendingStocks = stocks.filter(
-              (s) => s.farmer?._id === farmer._id && !s.approved
-            );
-
-            return (
-              <div
-                key={farmer._id}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 border border-gray-100 overflow-hidden transition-all duration-300 group flex flex-col"
-              >
-                {/* Card Header */}
-                <div className="p-5 border-b border-gray-50 bg-gradient-to-r from-gray-50 to-white">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      {/* Avatar Generator based on name */}
-                      <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">
-                        {farmer.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800 group-hover:text-green-700 transition-colors">
-                          {farmer.name}
-                        </h3>
-                        <p className="text-xs text-gray-500 font-mono">
-                          {farmer.email}
-                        </p>
-                      </div>
-                    </div>
-                    {pendingStocks.length > 0 ? (
-                      <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                        {pendingStocks.length} Pending
-                      </span>
-                    ) : (
-                      <span className="bg-gray-100 text-gray-400 text-xs font-bold px-2 py-1 rounded-full">
-                        Clear
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Card Body (Stock List) */}
-                <div className="p-5 flex-1 flex flex-col">
-                  {pendingStocks.length > 0 ? (
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                        Approvals Needed
-                      </h4>
-                      {pendingStocks.map((s) => (
-                        <div
-                          key={s._id}
-                          className="bg-gray-50 rounded-xl p-3 border border-gray-100 hover:border-green-200 transition-colors"
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center gap-2">
-                              <Sprout size={16} className="text-green-600" />
-                              <span className="font-semibold text-gray-700 text-sm">
-                                {s.vegetable}
-                              </span>
-                            </div>
-                            <span className="text-emerald-700 font-bold text-sm">
-                              ₹{s.price}
-                            </span>
+                  return (
+                    <div
+                      key={farmer._id}
+                      className="farmer-card"
+                    >
+                      {/* Card Header */}
+                      <div className="farmer-card__header">
+                        <div className="farmer-header-main">
+                          <div className="farmer-avatar">
+                            {farmer.name
+                              ?.charAt(0)
+                              .toUpperCase() || "F"}
                           </div>
-                          
-                          <div className="flex justify-between items-center mt-3">
-                            <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
-                              Qty: {s.quantity}
-                            </span>
-                            
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => approveStock(s._id)}
-                                className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all"
-                                title="Approve"
-                              >
-                                <CheckCircle2 size={18} />
-                              </button>
-                              <button
-                                onClick={() => rejectStock(s._id)}
-                                className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
-                                title="Reject"
-                              >
-                                <XCircle size={18} />
-                              </button>
-                            </div>
+                          <div>
+                            <h3 className="farmer-name">
+                              {farmer.name}
+                            </h3>
+                            <p className="farmer-email">
+                              {farmer.email}
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-center py-6 opacity-60">
-                      <CheckCircle2 size={40} className="text-green-200 mb-2" />
-                      <p className="text-sm text-gray-400">All caught up!</p>
-                      <p className="text-xs text-gray-300">No pending items for this farmer.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                        {pendingStocks.length > 0 ? (
+                          <span className="farmer-badge farmer-badge--pending">
+                            {pendingStocks.length} Pending
+                          </span>
+                        ) : (
+                          <span className="farmer-badge farmer-badge--clear">
+                            Clear
+                          </span>
+                        )}
+                      </div>
 
-      {/* Empty State */}
-      {!loading && filteredFarmers.length === 0 && (
-        <div className="text-center py-20">
-          <div className="bg-gray-100 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search size={32} className="text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900">No farmers found</h3>
-          <p className="text-gray-500 max-w-sm mx-auto mt-2">
-            We couldn't find any farmers matching your search. Try adjusting your filters.
-          </p>
-        </div>
-      )}
+                      {/* Card Body */}
+                      <div className="farmer-card__body">
+                        {pendingStocks.length > 0 ? (
+                          <div className="farmer-approvals">
+                            <h4 className="farmer-approvals__title">
+                              Approvals Needed
+                            </h4>
+                            {pendingStocks.map((s) => (
+                              <div
+                                key={s._id}
+                                className="stock-card"
+                              >
+                                <div className="stock-card__top">
+                                  <div className="stock-main">
+                                    <Sprout
+                                      size={16}
+                                      className="stock-main__icon"
+                                    />
+                                    <span className="stock-main__name">
+                                      {s.vegetable}
+                                    </span>
+                                  </div>
+                                  <span className="stock-price">
+                                    LKR {s.price}
+                                  </span>
+                                </div>
+
+                                <div className="stock-card__bottom">
+                                  <span className="stock-qty">
+                                    Qty: {s.quantity}
+                                  </span>
+                                  <div className="stock-actions">
+                                    <button
+                                      onClick={() =>
+                                        approveStock(s._id)
+                                      }
+                                      className="stock-btn stock-btn--approve"
+                                      title="Approve"
+                                    >
+                                      <CheckCircle2 size={18} />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        rejectStock(s._id)
+                                      }
+                                      className="stock-btn stock-btn--reject"
+                                      title="Reject"
+                                    >
+                                      <XCircle size={18} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="farmer-empty">
+                            <CheckCircle2
+                              size={40}
+                              className="farmer-empty__icon"
+                            />
+                            <p className="farmer-empty__text">
+                              All caught up!
+                            </p>
+                            <p className="farmer-empty__sub">
+                              No pending items for this farmer.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Empty state for no farmers after filter
+              <div className="farmers-empty-state">
+                <div className="farmers-empty-icon">
+                  <Search size={32} />
+                </div>
+                <h3 className="farmers-empty-title">
+                  No farmers found
+                </h3>
+                <p className="farmers-empty-sub">
+                  We couldn't find any farmers matching your search.
+                  Try adjusting your filters.
+                </p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,232 @@
+:root {
+  --footer-bg-top: #052b21;
+  --footer-bg-bottom: #073603;
+  --footer-accent: #063517;
+  --footer-accent-soft: #075021;
+  
+/* Overall footer shell */
+.site-footer {
+  margin-top: 40px;
+  background: radial-gradient(
+      circle at top left,
+      rgba(3, 61, 40, 0.35),
+      transparent 55%
+    ),
+    radial-gradient(circle at top right, #01442f 0, transparent 55%),
+    linear-gradient(180deg, var(--footer-bg-top), var(--footer-bg-bottom));
+  color: #757577;
+  padding-top: 40px;
+  padding-bottom: 20px;
+
+}
+
+/* Inner container */
+.footer-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: 1.5rem;
+}
+
+/* Top grid */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 2.5rem;
+  padding-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Columns */
+.footer-col {
+  font-size: 0.85rem;
+}
+
+/* Brand column */
+.footer-brand {
+  max-width: 260px;
+}
+
+.footer-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Small square/pill logo */
+.footer-logo-pill {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f9fafb;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 10px 26px rgba(16, 185, 129, 0.7);
+}
+
+/* Brand text */
+.footer-logo-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #f9fafb;
+}
+
+.footer-logo-text span {
+  color: var(--footer-accent-soft);
+}
+
+.footer-tagline {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(209, 250, 229, 0.8);
+}
+
+/* Brand description */
+.footer-body-text {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.9);
+  line-height: 1.6;
+}
+
+/* Social icons */
+.footer-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.footer-social-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1fae5;
+  transition: all 0.18s ease-out;
+}
+
+.footer-social-btn:hover {
+  background: #22c55e;
+  color: #022c22;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.8);
+}
+
+/* Headings for columns */
+.footer-heading {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+  display: inline-block;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.6);
+}
+
+/* Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-link {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.85);
+  text-decoration: none;
+  position: relative;
+  transition: color 0.16s ease-out, padding-left 0.16s ease-out;
+}
+
+.footer-link::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  font-size: 0.75rem;
+  color: var(--footer-accent-soft);
+  transition: all 0.16s ease-out;
+}
+
+.footer-link:hover {
+  color: var(--footer-accent-soft);
+  padding-left: 10px;
+}
+
+.footer-link:hover::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Contact section */
+.footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.footer-contact-row svg {
+  flex-shrink: 0;
+  color: #bbf7d0;
+  margin-top: 2px;
+}
+
+/* Bottom bar */
+.footer-bottom {
+  border-top: 1px solid rgba(15, 118, 110, 0.6);
+  margin-top: 18px;
+  padding-top: 12px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(209, 250, 229, 0.9);
+}
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  .site-footer {
+    border-radius: 30px 30px 0 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-footer {
+    padding-top: 32px;
+    padding-bottom: 18px;
+  }
+
+  .footer-inner {
+    padding-inline: 1.25rem;
+  }
+}

@@ -1902,6 +1902,7 @@
 // }
 
 
+
 import { useState, useEffect } from "react";
 import {
   FaUsers,
@@ -1912,8 +1913,6 @@ import {
   FaStar,
   FaLeaf,
   FaSignOutAlt,
-  FaSearch,
-  FaBell,
   FaArrowUp,
   FaArrowDown,
   FaEllipsisH,
@@ -1925,7 +1924,6 @@ import {
 import { useAuth } from "../../AuthContext";
 import api from "../../api";
 
-// Import your sub-pages
 import Products from "./Products";
 import Users from "./Users";
 import Farmers from "./Farmers";
@@ -1933,11 +1931,12 @@ import FarmerStock from "./FarmerStock";
 import Orders from "./Orders";
 import AdminReviews from "./AdminReviews";
 
+import "./AdminDashboard.css";
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { logout } = useAuth();
 
-  // ====== State ======
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalCustomers: 0,
@@ -1953,7 +1952,6 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
 
-  // ====== Fetch Data ======
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -1978,7 +1976,10 @@ export default function AdminDashboard() {
         const packages = products.filter((p) => p.type === "package");
         const approvedFarmers = farmers.filter((f) => f.approved).length;
         const pendingFarmers = farmers.filter((f) => !f.approved).length;
-        const totalRevenue = allOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        const totalRevenue = allOrders.reduce(
+          (sum, o) => sum + (o.totalAmount || 0),
+          0
+        );
 
         setOrders(allOrders);
         setStats({
@@ -2003,7 +2004,6 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  // ====== Navigation Data ======
   const tabs = [
     { id: "dashboard", label: "Overview", icon: <FaTachometerAlt /> },
     { id: "products", label: "Products", icon: <FaBoxOpen /> },
@@ -2014,34 +2014,56 @@ export default function AdminDashboard() {
     { id: "reviews", label: "Reviews", icon: <FaStar /> },
   ];
 
-  // ====== Render Content ======
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardHome stats={stats} orders={orders} loading={loadingStats} />;
-      case "products": return <Products />;
-      case "orders": return <Orders />;
-      case "users": return <Users />;
-      case "farmers": return <Farmers />;
-      case "farmerStock": return <FarmerStock />;
-      case "reviews": return <AdminReviews />;
-      default: return <DashboardHome stats={stats} orders={orders} loading={loadingStats} />;
+        return (
+          <DashboardHome
+            stats={stats}
+            orders={orders}
+            loading={loadingStats}
+          />
+        );
+      case "products":
+        return <Products />;
+      case "orders":
+        return <Orders />;
+      case "users":
+        return <Users />;
+      case "farmers":
+        return <Farmers />;
+      case "farmerStock":
+        return <FarmerStock />;
+      case "reviews":
+        return <AdminReviews />;
+      default:
+        return (
+          <DashboardHome
+            stats={stats}
+            orders={orders}
+            loading={loadingStats}
+          />
+        );
     }
   };
 
   return (
-    <div className="flex h-screen font-sans text-slate-800 overflow-hidden">
-      {/* ============ SIDEBAR ============ */}
-      <aside className="w-20 lg:w-64 border-r border-gray-200 flex flex-col justify-between transition-all duration-300 z-20 shadow-sm" style={{width:"250px",backgroundColor:"#023a10ff"}}>
+    <div className="admin-layout flex h-screen font-sans text-slate-800 overflow-hidden" style={{paddingTop:"100px"}}>
+      {/* SIDEBAR */}
+      <aside className="admin-sidebar flex flex-col justify-between z-20">
         <div>
           {/* Logo */}
-          <div className="h-20 flex items-center justify-center lg:justify-start lg:px-6 border-gray-100" style={{paddingTop:"150px"}}>
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200">
+          <div className="admin-logo-row h-20 flex items-center justify-center lg:justify-start lg:px-6">
+            <div className="admin-logo-icon w-10 h-10 rounded-xl flex items-center justify-center">
               <FaLeaf className="text-white text-xl" />
             </div>
             <div className="hidden lg:block ml-3">
-              <h1 className="text-lg font-bold text-white leading-tight">VegPack</h1>
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-white">Admin Panel</span>
+              <h1 className="text-lg font-bold text-white leading-tight">
+                VegPack
+              </h1>
+              <span className="text-[10px] uppercase font-semibold tracking-wider text-emerald-100">
+                Admin Panel
+              </span>
             </div>
           </div>
 
@@ -2053,26 +2075,23 @@ export default function AdminDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group relative w-full flex items-center px-3 py-3 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? "bg-emerald-50 text-white"
-                      : "text-white hover:bg-gray-50 hover:text-slate-900"
+                  className={`nav-btn group relative w-full flex items-center px-3 py-3 rounded-xl transition-all duration-200 ${
+                    isActive ? "nav-btn--active" : ""
                   }`}
                 >
-                  {/* Active Indicator Line */}
                   {isActive && (
-                    <div className="absolute left-0 h-8 w-1 bg-emerald-500 rounded-r-full" />
+                    <div className="nav-btn__active-bar" />
                   )}
-                  
-                  <span className={`text-xl ${isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600"}`}>
+
+                  <span className="nav-btn__icon text-xl">
                     {tab.icon}
                   </span>
-                  <span className={`hidden lg:block ml-3 text-sm font-medium ${isActive ? "font-semibold" : ""}`}>
+                  <span className="nav-btn__label hidden lg:block ml-3 text-sm font-medium">
                     {tab.label}
                   </span>
-                  
+
                   {/* Tooltip for small screens */}
-                  <div className="lg:hidden absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                  <div className="lg:hidden nav-btn__tooltip">
                     {tab.label}
                   </div>
                 </button>
@@ -2082,63 +2101,23 @@ export default function AdminDashboard() {
         </div>
 
         {/* Logout */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="admin-sidebar-footer p-4">
           <button
             onClick={logout}
-            className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl text-white hover:bg-red-50 hover:text-red-500 transition-colors"
+            className="logout-btn w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl"
           >
             <FaSignOutAlt className="text-lg" />
-            <span className="hidden lg:block text-sm font-medium">Sign Out</span>
+            <span className="hidden lg:block text-sm font-medium">
+              Sign Out
+            </span>
           </button>
         </div>
       </aside>
 
-      {/* ============ MAIN CONTENT AREA ============ */}
-      <div className="flex-1 flex flex-col overflow-hidden relative" style={{paddingTop:"100px"}}>
-        {/* Decorative Background Blob */}
-        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-emerald-50/50 to-transparent -z-10" />
+      {/* MAIN CONTENT */}
+      <div className="admin-main flex-1 flex flex-col overflow-hidden relative">
+        <div className="admin-top-gradient absolute top-0 left-0 w-full h-64 -z-10" />
 
-        {/* Header */}
-        <header className="h-20 flex items-center justify-between px-6 lg:px-8 z-10">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-800">
-              {tabs.find((t) => t.id === activeTab)?.label}
-            </h2>
-            <p className="text-xs text-slate-500 hidden md:block">
-              Welcome back, Admin. Here's what's happening today.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Search Bar */}
-            <div className="hidden md:flex items-center bg-white px-4 py-2.5 rounded-full border border-gray-200 shadow-sm focus-within:ring-2 focus-within:ring-emerald-100 transition-all w-64">
-              <FaSearch className="text-gray-400 text-sm" />
-              <input 
-                type="text" 
-                placeholder="Search anything..." 
-                className="bg-transparent outline-none text-sm ml-2 w-full placeholder-gray-400 text-slate-700"
-                style={{borderColor:"white"}}
-              />
-            </div>
-
-            {/* Notification */}
-            <button className="relative w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-slate-600 hover:bg-gray-50 shadow-sm transition-all">
-              <FaBell />
-              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-            </button>
-
-            {/* Profile */}
-            <div className="flex items-center gap-3 pl-2 cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-600 p-[2px]">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                   <img src="https://ui-avatars.com/api/?name=Admin+User&background=10b981&color=fff" alt="Admin" className="w-full h-full object-cover" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content Scrollable Area */}
         <main className="flex-1 overflow-y-auto px-6 lg:px-8 pb-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {renderContent()}
         </main>
@@ -2147,82 +2126,84 @@ export default function AdminDashboard() {
   );
 }
 
-/* =================================================
-   DASHBOARD HOME COMPONENT (Updated Colors)
-   ================================================= */
+/* ============================
+   DASHBOARD HOME
+   ============================ */
 function DashboardHome({ stats, orders, loading }) {
   if (loading) {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center text-slate-400">
-        <div className=" h-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium animate-pulse">Syncing Dashboard Data...</p>
+        <div className="h-12 w-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium animate-pulse">
+          Syncing Dashboard Data...
+        </p>
       </div>
     );
   }
 
-  // Calculations
   const recentOrders = orders.slice(0, 6);
-  const completedOrders = orders.filter((o) => o.shipmentStatus === "Delivered").length;
-  const pendingOrders = orders.filter((o) => o.shipmentStatus !== "Delivered").length;
-  const completionRate = orders.length > 0 ? (completedOrders / orders.length) * 100 : 0;
+  const completedOrders = orders.filter(
+    (o) => o.shipmentStatus === "Delivered"
+  ).length;
+  const pendingOrders = orders.filter(
+    (o) => o.shipmentStatus !== "Delivered"
+  ).length;
+  const completionRate =
+    orders.length > 0
+      ? (completedOrders / orders.length) * 100
+      : 0;
 
   return (
-    <div className=" mx-auto space-y-6 mt-2" style={{borderRadius:"15px"}}>
-      
-      {/* 1. Key Metrics Row - WITH NEW COLORFUL CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5" >
-        
-        {/* Total Revenue - GREEN */}
-        <StatCard 
-          title="Total Revenue" 
-          value={`₹${stats.totalRevenue.toLocaleString()}`} 
-          trend="+12.5%" 
+    <div className="dashboard-home mx-auto space-y-6 mt-2">
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          title="Total Revenue"
+          value={`₹${stats.totalRevenue.toLocaleString()}`}
+          trend="+12.5%"
           trendUp={true}
           icon={<FaLeaf />}
           variant="emerald"
         />
-        
-        {/* Total Orders - BLUE */}
-        <StatCard 
-          title="Total Orders" 
-          value={stats.totalOrders} 
-          trend="+4.3%" 
+        <StatCard
+          title="Total Orders"
+          value={stats.totalOrders}
+          trend="+4.3%"
           trendUp={true}
           icon={<FaShoppingCart />}
           variant="blue"
         />
-
-        {/* Customers - ORANGE */}
-        <StatCard 
-          title="Active Customers" 
-          value={stats.totalCustomers} 
-          trend="-1.2%" 
+        <StatCard
+          title="Active Customers"
+          value={stats.totalCustomers}
+          trend="-1.2%"
           trendUp={false}
           icon={<FaUsers />}
           variant="orange"
         />
-
-        {/* Farmers - PURPLE (INDIGO) */}
-        <StatCard 
-          title="Farmers" 
-          value={stats.totalFarmers} 
+        <StatCard
+          title="Farmers"
+          value={stats.totalFarmers}
           subValue={`${stats.pendingFarmers} Pending`}
-          trend="Active" 
+          trend="Active"
           trendUp={true}
           icon={<FaWarehouse />}
           variant="indigo"
         />
       </div>
 
-      {/* 2. Middle Section: Charts & Stats Grid */}
+      {/* Charts + Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left: Revenue Graph */}
+        {/* Revenue Analytics */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h3 className="text-lg font-bold text-slate-800">Revenue Analytics</h3>
-              <p className="text-sm text-slate-500">Income over the last 7 months</p>
+              <h3 className="text-lg font-bold text-slate-800">
+                Revenue Analytics
+              </h3>
+              <p className="text-sm text-slate-500">
+                Income over the last 7 months
+              </p>
             </div>
             <select className="bg-gray-50 border border-gray-200 text-slate-600 text-xs rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-100 cursor-pointer">
               <option>Last 7 Months</option>
@@ -2233,83 +2214,170 @@ function DashboardHome({ stats, orders, loading }) {
           <div className="relative h-64 w-full mt-4 group">
             <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-300 font-medium">
               {[40000, 30000, 20000, 10000, 0].map((val) => (
-                <div key={val} className="border-b border-dashed border-gray-100 w-full h-full flex items-end pb-1">
-                  <span>{val > 0 ? `${val/1000}k` : 0}</span>
+                <div
+                  key={val}
+                  className="border-b border-dashed border-gray-100 w-full h-full flex items-end pb-1"
+                >
+                  <span>{val > 0 ? `${val / 1000}k` : 0}</span>
                 </div>
               ))}
             </div>
 
             <div className="absolute inset-0 ml-8">
-               <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="w-full h-full overflow-visible">
-                  <defs>
-                    <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#10B981" stopOpacity="0.2"/>
-                      <stop offset="100%" stopColor="#10B981" stopOpacity="0"/>
-                    </linearGradient>
-                  </defs>
-                  <path 
-                    d="M0,50 L0,35 C15,30 25,40 40,25 C55,10 65,20 80,15 C90,10 95,5 100,10 L100,50 Z" 
-                    fill="url(#chartGradient)" 
-                  />
-                  <path 
-                    d="M0,35 C15,30 25,40 40,25 C55,10 65,20 80,15 C90,10 95,5 100,10" 
-                    fill="none" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" className="drop-shadow-md"
-                  />
-                   <circle cx="40" cy="25" r="1.5" fill="white" stroke="#10B981" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                   <circle cx="80" cy="15" r="1.5" fill="white" stroke="#10B981" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-               </svg>
+              <svg
+                viewBox="0 0 100 50"
+                preserveAspectRatio="none"
+                className="w-full h-full overflow-visible"
+              >
+                <defs>
+                  <linearGradient
+                    id="chartGradient"
+                    x1="0"
+                    x2="0"
+                    y1="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor="#10B981"
+                      stopOpacity="0.2"
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="#10B981"
+                      stopOpacity="0"
+                    />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0,50 L0,35 C15,30 25,40 40,25 C55,10 65,20 80,15 C90,10 95,5 100,10 L100,50 Z"
+                  fill="url(#chartGradient)"
+                />
+                <path
+                  d="M0,35 C15,30 25,40 40,25 C55,10 65,20 80,15 C90,10 95,5 100,10"
+                  fill="none"
+                  stroke="#10B981"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  className="drop-shadow-md"
+                />
+                <circle
+                  cx="40"
+                  cy="25"
+                  r="1.5"
+                  fill="white"
+                  stroke="#10B981"
+                  strokeWidth="1"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+                <circle
+                  cx="80"
+                  cy="15"
+                  r="1.5"
+                  fill="white"
+                  stroke="#10B981"
+                  strokeWidth="1"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </svg>
             </div>
             <div className="absolute bottom-[-20px] left-8 right-0 flex justify-between text-xs text-gray-400">
-               <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+              <span>Jan</span>
+              <span>Feb</span>
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
             </div>
           </div>
         </div>
 
-        {/* Right: Order Status */}
+        {/* Order Success + Inventory */}
         <div className="flex flex-col gap-6">
-            <div className="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4"></div>
-               <h3 className="text-lg font-bold text-slate-800 mb-4 z-10">Order Success Rate</h3>
-               <div className="relative w-36 h-36 mb-4">
-                  <svg className="w-full h-full" viewBox="0 0 36 36">
-                    <path className="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
-                    <path className="text-emerald-500 drop-shadow-lg" strokeDasharray={`${completionRate}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-slate-800">{completionRate.toFixed(0)}%</span>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wide">Completed</span>
-                  </div>
-               </div>
-               <div className="w-full flex justify-between text-sm px-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="text-slate-600">Done: <span className="font-semibold">{completedOrders}</span></span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-                    <span className="text-slate-600">Pending: <span className="font-semibold">{pendingOrders}</span></span>
-                  </div>
-               </div>
+          <div className="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4" />
+            <h3 className="text-lg font-bold text-slate-800 mb-4 z-10">
+              Order Success Rate
+            </h3>
+            <div className="relative w-36 h-36 mb-4">
+              <svg className="w-full h-full" viewBox="0 0 36 36">
+                <path
+                  className="text-gray-100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className="text-emerald-500 drop-shadow-lg"
+                  strokeDasharray={`${completionRate}, 100`}
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-bold text-slate-800">
+                  {completionRate.toFixed(0)}%
+                </span>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  Completed
+                </span>
+              </div>
             </div>
+            <div className="w-full flex justify-between text-sm px-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-slate-600">
+                  Done:{" "}
+                  <span className="font-semibold">
+                    {completedOrders}
+                  </span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-gray-300" />
+                <span className="text-slate-600">
+                  Pending:{" "}
+                  <span className="font-semibold">
+                    {pendingOrders}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
 
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
-                <FaBoxOpen className="absolute right-4 bottom-4 text-slate-700 text-6xl opacity-50 rotate-12" />
-                <p className="text-slate-300 text-xs font-medium uppercase tracking-wide mb-1">Inventory Alert</p>
-                <h4 className="text-2xl font-bold mb-2">{stats.totalVegetables} Items</h4>
-                <p className="text-xs text-slate-400 mb-4">Vegetables & Packages currently active across all farmers.</p>
-                <button className="text-xs bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
-                  Manage Stock
-                </button>
-            </div>
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+            <FaBoxOpen className="absolute right-4 bottom-4 text-slate-700 text-6xl opacity-50 rotate-12" />
+            <p className="text-slate-300 text-xs font-medium uppercase tracking-wide mb-1">
+              Inventory Alert
+            </p>
+            <h4 className="text-2xl font-bold mb-2">
+              {stats.totalVegetables} Items
+            </h4>
+            <p className="text-xs text-slate-400 mb-4">
+              Vegetables & Packages currently active across all
+              farmers.
+            </p>
+            <button className="text-xs bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+              Manage Stock
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 3. Recent Orders Table */}
+      {/* Recent Orders */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-50">
           <div>
-             <h3 className="text-lg font-bold text-slate-800">Recent Orders</h3>
-             <p className="text-xs text-slate-500">Latest transactions from customers</p>
+            <h3 className="text-lg font-bold text-slate-800">
+              Recent Orders
+            </h3>
+            <p className="text-xs text-slate-500">
+              Latest transactions from customers
+            </p>
           </div>
           <button className="text-sm text-emerald-600 font-semibold hover:text-emerald-700 flex items-center gap-1">
             View All <FaShoppingCart className="text-xs" />
@@ -2329,21 +2397,52 @@ function DashboardHome({ stats, orders, loading }) {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {recentOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-50/80 transition-colors group">
-                    <td className="px-6 py-4 font-medium text-slate-700">#{order._id.slice(-6).toUpperCase()}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">{(order.userId?.name?.[0] || "U").toUpperCase()}</div>
-                        <span className="font-medium text-slate-700">{order.userId?.name || "Unknown"}</span>
+                <tr
+                  key={order._id}
+                  className="hover:bg-gray-50/80 transition-colors group"
+                >
+                  <td className="px-6 py-4 font-medium text-slate-700">
+                    #{order._id.slice(-6).toUpperCase()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                        {(order.userId?.name?.[0] || "U").toUpperCase()}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-500">{new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
-                    <td className="px-6 py-4 text-center font-semibold text-slate-700">₹{order.totalAmount}</td>
-                    <td className="px-6 py-4 text-center"><StatusBadge status={order.shipmentStatus} /></td>
-                    <td className="px-6 py-4 text-right"><button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-all"><FaEllipsisH /></button></td>
-                  </tr>
-                ))}
-                {recentOrders.length === 0 && <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No orders found.</td></tr>}
+                      <span className="font-medium text-slate-700">
+                        {order.userId?.name || "Unknown"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500">
+                    {new Date(order.createdAt).toLocaleDateString(
+                      "en-US",
+                      { month: "short", day: "numeric" }
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-center font-semibold text-slate-700">
+                    LKR {order.totalAmount}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <StatusBadge status={order.shipmentStatus} />
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-all">
+                      <FaEllipsisH />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {recentOrders.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-8 text-center text-slate-400"
+                  >
+                    No orders found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -2352,57 +2451,72 @@ function DashboardHome({ stats, orders, loading }) {
   );
 }
 
-/* =================================================
-   NEW COLORFUL STAT CARD COMPONENT
-   ================================================= */
+/* STAT CARD */
 function StatCard({ title, value, subValue, trend, trendUp, icon, variant }) {
-  
-  // Background Styles Mapping
   const designs = {
-    emerald: "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/30",
+    emerald:
+      "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/30",
     blue: "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/30",
-    orange: "bg-gradient-to-br from-pink-400 to-red-500 shadow-orange-500/30",
-    indigo: "bg-gradient-to-br from-purple-500 to-fuchsia-600 shadow-purple-500/30", // Indigo/Purple
+    orange:
+      "bg-gradient-to-br from-pink-400 to-red-500 shadow-orange-500/30",
+    indigo:
+      "bg-gradient-to-br from-purple-500 to-fuchsia-600 shadow-purple-500/30",
   };
 
   const currentDesign = designs[variant] || designs.emerald;
 
   return (
-    <div className={`${currentDesign} rounded-2xl p-5 text-white shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300`}>
-      
-      {/* Background Decorative Circle */}
-     
+    <div
+      className={`${currentDesign} stat-card rounded-2xl p-5 text-white shadow-lg relative overflow-hidden group`}
+    >
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-4">
-          {/* Glass Icon Box */}
           <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl shadow-sm border border-white/10">
             {icon}
           </div>
           {trend && (
-             <div className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 bg-white/90 ${trendUp ? "text-green-600" : "text-red-500"}`}>
-                {trendUp ? <FaArrowUp size={10} /> : <FaArrowDown size={10} />}
-                {trend}
-             </div>
+            <div
+              className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 bg-white/90 ${
+                trendUp
+                  ? "text-green-600"
+                  : "text-red-500"
+              }`}
+            >
+              {trendUp ? (
+                <FaArrowUp size={10} />
+              ) : (
+                <FaArrowDown size={10} />
+              )}
+              {trend}
+            </div>
           )}
         </div>
-        
+
         <div>
-          <p className="text-xs font-medium text-white/80 uppercase tracking-wider">{title}</p>
+          <p className="text-xs font-medium text-white/80 uppercase tracking-wider">
+            {title}
+          </p>
           <h3 className="text-3xl font-bold mt-1">{value}</h3>
-          {subValue && <p className="text-xs text-white/70 mt-1">{subValue}</p>}
+          {subValue && (
+            <p className="text-xs text-white/70 mt-1">
+              {subValue}
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+/* STATUS BADGE */
 function StatusBadge({ status }) {
   let styles = "";
   let icon = null;
 
   switch (status) {
     case "Delivered":
-      styles = "bg-emerald-100 text-emerald-700 border border-emerald-200";
+      styles =
+        "bg-emerald-100 text-emerald-700 border border-emerald-200";
       icon = <FaCheckCircle className="mr-1.5" />;
       break;
     case "Shipped":
@@ -2410,16 +2524,20 @@ function StatusBadge({ status }) {
       icon = <FaShippingFast className="mr-1.5" />;
       break;
     case "Processing":
-      styles = "bg-indigo-100 text-indigo-700 border border-indigo-200";
+      styles =
+        "bg-indigo-100 text-indigo-700 border border-indigo-200";
       icon = <FaClock className="mr-1.5" />;
       break;
     default:
-      styles = "bg-amber-100 text-amber-700 border border-amber-200";
+      styles =
+        "bg-amber-100 text-amber-700 border border-amber-200";
       icon = <FaClock className="mr-1.5" />;
   }
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles}`}
+    >
       {icon}
       {status}
     </span>

@@ -1160,77 +1160,399 @@
 //   );
 // }
 
+// import { useState, useEffect } from "react";
+// import { 
+//   Search, Sprout, ArrowRight, Package, 
+//   DollarSign, X, CheckCircle, RefreshCcw, 
+//   Leaf, MoreHorizontal, Zap
+// } from "lucide-react";
+// import api from "../../api";
+
+// // --- 0. CUSTOM ANIMATIONS & STYLES ---
+// const CustomStyles = () => (
+//   <style>{`
+//     @keyframes slideUp {
+//       from { opacity: 0; transform: translateY(20px); }
+//       to { opacity: 1; transform: translateY(0); }
+//     }
+//     @keyframes pulse-glow {
+//       0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+//       50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+//     }
+//     .card-entry { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
+    
+//     /* Custom Scrollbar for modal */
+//     .thin-scroll::-webkit-scrollbar { width: 6px; }
+//     .thin-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+//     .thin-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+//   `}</style>
+// );
+
+// // --- 1. DYNAMIC THEME ENGINE ---
+// const getTheme = (name = "") => {
+//   const n = name.toLowerCase();
+//   if (n.includes("tomato") || n.includes("chilli") || n.includes("apple") || n.includes("red")) 
+//     return { 
+//       gradient: "from-rose-400 to-orange-500", 
+//       bg: "bg-rose-50", 
+//       text: "text-rose-600",
+//       shadow: "group-hover:shadow-rose-200",
+//       icon: "🍅"
+//     };
+//   if (n.includes("potato") || n.includes("onion") || n.includes("ginger")) 
+//     return { 
+//       gradient: "from-amber-400 to-yellow-500", 
+//       bg: "bg-amber-50", 
+//       text: "text-amber-700",
+//       shadow: "group-hover:shadow-amber-200",
+//       icon: "🥔"
+//     };
+//   if (n.includes("carrot") || n.includes("pumpkin")) 
+//     return { 
+//       gradient: "from-orange-400 to-red-400", 
+//       bg: "bg-orange-50", 
+//       text: "text-orange-700",
+//       shadow: "group-hover:shadow-orange-200",
+//       icon: "🥕"
+//     };
+//   if (n.includes("brinjal") || n.includes("beet") || n.includes("onion")) 
+//     return { 
+//       gradient: "from-purple-500 to-indigo-500", 
+//       bg: "bg-purple-50", 
+//       text: "text-purple-700",
+//       shadow: "group-hover:shadow-purple-200",
+//       icon: "🍆"
+//     };
+  
+//   // Default Green (Leafy)
+//   return { 
+//     gradient: "from-emerald-400 to-teal-500", 
+//     bg: "bg-emerald-50", 
+//     text: "text-emerald-700",
+//     shadow: "group-hover:shadow-emerald-200",
+//     icon: "🥬"
+//   };
+// };
+
+// export default function FarmerStock() {
+//   const [stocks, setStocks] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedStock, setSelectedStock] = useState(null);
+//   const [notification, setNotification] = useState(null);
+  
+//   // Form
+//   const [productForm, setProductForm] = useState({ name: "", price: "", quantity: "", description: "", image: "" });
+
+//   // Fetch
+//   const fetchStocks = async () => {
+//     setLoading(true);
+//     try {
+//       const res = await api.get("/admin/farmer-stock");
+//       if (res.success) setStocks((res.stocks || []).filter((s) => s.approved));
+//     } catch (err) { console.error(err); } 
+//     finally { setTimeout(() => setLoading(false), 800); }
+//   };
+
+//   useEffect(() => { fetchStocks(); }, []);
+
+//   // Actions
+//   const openModal = (stock) => {
+//     setSelectedStock(stock);
+//     setProductForm({
+//       name: stock.vegetable,
+//       price: Math.ceil(stock.price * 1.2),
+//       quantity: stock.quantity,
+//       description: `Fresh ${stock.vegetable} sourced from ${stock.farmer?.name}.`,
+//       image: `https://source.unsplash.com/200x200/?${stock.vegetable}`,
+//     });
+//   };
+
+//   const handleCreate = async () => {
+//     try {
+//       await api.post("/admin/products", { ...productForm, type: "vegetable", price: Number(productForm.price) });
+//       setNotification("Product Published Successfully!");
+//       setSelectedStock(null);
+//       fetchStocks();
+//       setTimeout(() => setNotification(null), 3000);
+//     } catch (err) { console.error(err); }
+//   };
+
+//   return (
+//     <div className="min-h-screen  font-sans text-slate-800 pb-20 relative overflow-x-hidden" style={{backgroundColor:"#a5ddaaff",padding:"30px",borderRadius:"20px"}}>
+//       <CustomStyles />
+      
+//       {/* Background Decor */}
+//       <div className="fixed top-0 left-0 w-full h-64 bg-gradient-to-b from-emerald-50/80 to-transparent -z-10"></div>
+//       <div className="fixed -top-20 -right-20 w-96 h-96 bg-teal-100 rounded-full blur-3xl opacity-30 -z-10 animate-pulse"></div>
+
+//       {/* --- HEADER --- */}
+//       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-sm">
+//         <div className="flex items-center gap-3">
+//           <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-emerald-400 shadow-lg shadow-slate-900/20">
+//             <Sprout size={22} />
+//           </div>
+//           <div>
+//             <h1 className="text-lg font-bold text-slate-900 leading-tight">Farmer Stock</h1>
+//             <p className="text-xs text-slate-500 font-medium">Live Inventory Feed</p>
+//           </div>
+//         </div>
+        
+//         <div className="flex items-center gap-3" >
+//           <div className="hidden md:flex items-center bg-white  rounded-full px-4 py-1.5 shadow-sm focus-within:ring-2 focus-within:ring-emerald-500/30 transition-all">
+//             <Search size={14} className="text-slate-400 mr-2"/>
+//             <input placeholder="Search..." className="bg-transparent outline-none text-sm w-32 lg:w-48" />
+//           </div>
+//           <button onClick={fetchStocks} className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-full hover:bg-slate-50 text-slate-600 transition-transform active:rotate-180">
+//             <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* --- COMPACT CARD GRID --- */}
+//       <div className="p-6 max-w-[1600px] mx-auto"  >
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5" >
+          
+//           {loading ? (
+//              [...Array(10)].map((_, i) => (
+//                <div key={i} className="h-36 bg-white rounded-2xl border border-slate-100 animate-pulse shadow-sm"></div>
+//              ))
+//           ) : (
+//             stocks.map((s, idx) => {
+//               const theme = getTheme(s.vegetable);
+//               return (
+//                 <div 
+//                   key={s._id}
+//                   onClick={() => openModal(s)}
+//                   style={{ animationDelay: `${idx * 50}ms`,borderRadius:"20px",backgroundColor:"#f5eef5ff"}}
+                  
+//                   className={`card-entry group relative  rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${theme.shadow} border border-slate-100 overflow-hidden`}
+//                 >
+//                   {/* Gradient Border Top */}
+//                   <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${theme.gradient}`} ></div>
+                  
+//                   {/* Card Body */}
+//                   <div className="flex justify-between items-start mb-2" >
+//                     <div className={`w-11 h-11 rounded-2xl ${theme.bg} flex items-center justify-center text-2xl shadow-inner`} >
+//                       {theme.icon} 
+//                     </div>
+//                     <div className="text-right">
+//                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stock</span>
+//                        <span className="inline-block bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-bold border border-slate-200">
+//                          {s.quantity}
+//                        </span>
+//                     </div>
+//                   </div>
+
+//                   <div className="mt-2" >
+//                     <h3 className="font-bold text-slate-800 text-sm truncate">{s.vegetable}</h3>
+//                     <p className="text-xs text-slate-400 truncate mb-4">From {s.farmer?.name}</p>
+                    
+//                     <div className="flex items-center justify-between pt-3 border-t border-dashed border-slate-100">
+//                       <div>
+//                          <span className="text-[10px] text-slate-400 uppercase font-bold block">Base Price</span>
+//                          <span className={`text-base font-bold ${theme.text}`}>₹{s.price}</span>
+//                       </div>
+                      
+//                       {/* Animated Button */}
+//                       <button className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center transform translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 shadow-lg shadow-slate-900/30 hover:bg-emerald-500">
+//                         <ArrowRight size={14} />
+//                       </button>
+                      
+//                       {/* Placeholder for non-hover state */}
+//                       <div className="w-8 h-8 flex items-center justify-center group-hover:opacity-0 transition-opacity absolute right-4 bottom-4 text-slate-300">
+//                         <MoreHorizontal size={18} />
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               );
+//             })
+//           )}
+//         </div>
+        
+//         {!loading && stocks.length === 0 && (
+//           <div className="text-center py-24">
+//             <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+//               <Package size={32} className="text-slate-300" />
+//             </div>
+//             <p className="text-slate-400 font-medium">No incoming stock requests.</p>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* --- SLICK MODAL (Compact & Clean) --- */}
+//       {selectedStock && (
+//         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all">
+//           <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            
+//             {/* Dynamic Header */}
+//             <div className={`px-8 py-6 bg-gradient-to-r ${getTheme(selectedStock.vegetable).gradient} text-white relative overflow-hidden`}>
+//               <div className="absolute top-0 right-0 p-4 opacity-20 transform rotate-12 translate-x-2 -translate-y-2">
+//                 <Leaf size={100} />
+//               </div>
+//               <div className="relative z-10">
+//                 <div className="flex justify-between items-start">
+//                   <div>
+//                     <p className="text-white/80 text-xs font-bold uppercase tracking-wider mb-1">Publishing</p>
+//                     <h2 className="text-3xl font-bold">{selectedStock.vegetable}</h2>
+//                   </div>
+//                   <button onClick={() => setSelectedStock(null)} className="bg-white/20 hover:bg-white/30 p-2 rounded-full backdrop-blur-md transition-colors">
+//                     <X size={18} />
+//                   </button>
+//                 </div>
+//                 <div className="flex gap-3 mt-4">
+//                   <span className="bg-black/20 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1">
+//                      👨‍🌾 {selectedStock.farmer?.name}
+//                   </span>
+//                   <span className="bg-black/20 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-medium">
+//                      Ref: #{selectedStock._id.slice(-4)}
+//                   </span>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* Body */}
+//             <div className="p-8 space-y-5 overflow-y-auto thin-scroll" style={{borderRadius:"10px"}}>
+              
+//               {/* Input Group 1 */}
+//               <div>
+//                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Product Name</label>
+//                 <input 
+//                   className="w-full mt-1.5 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:border-emerald-500 focus:bg-white outline-none transition-all"
+//                   value={productForm.name}
+//                   onChange={e => setProductForm({...productForm, name: e.target.value})}
+//                 />
+//               </div>
+
+//               {/* Input Group 2 (Row) */}
+//               <div className="grid grid-cols-2 gap-5">
+//                 <div>
+//                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Price (₹)</label>
+//                   <div className="relative mt-1.5">
+//                     <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/>
+//                     <input 
+//                       type="number"
+//                       className="w-full pl-10 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:border-emerald-500 focus:bg-white outline-none transition-all"
+//                       value={productForm.price}
+//                       onChange={e => setProductForm({...productForm, price: e.target.value})}
+//                     />
+//                   </div>
+//                 </div>
+//                 <div>
+//                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Quantity</label>
+//                   <input 
+//                     className="w-full mt-1.5 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:border-emerald-500 focus:bg-white outline-none transition-all"
+//                     value={productForm.quantity}
+//                     onChange={e => setProductForm({...productForm, quantity: e.target.value})}
+//                   />
+//                 </div>
+//               </div>
+
+//               {/* Input Group 3 */}
+//               <div>
+//                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Image URL</label>
+//                 <input 
+//                    placeholder="https://..."
+//                    className="w-full mt-1.5 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-medium text-slate-600 focus:border-emerald-500 focus:bg-white outline-none transition-all"
+//                    value={productForm.image}
+//                    onChange={e => setProductForm({...productForm, image: e.target.value})}
+//                 />
+//               </div>
+
+//               {/* Action Button */}
+//               <div className="pt-4">
+//                 <button 
+//                   onClick={handleCreate}
+//                   className="w-full py-4 rounded-2xl bg-slate-900 text-white font-bold text-base shadow-xl shadow-slate-900/20 hover:bg-emerald-600 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+//                 >
+//                   <Zap size={18} className="fill-current" /> Publish to Store
+//                 </button>
+//               </div>
+//             </div>
+
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Toast Notification */}
+//       {notification && (
+//         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-[60] animate-slideUp">
+//           <div className="bg-emerald-500 rounded-full p-1"><CheckCircle size={14} /></div>
+//           <span className="text-sm font-medium">{notification}</span>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+
+// src/pages/Admin/FarmerStock.jsx
 import { useState, useEffect } from "react";
-import { 
-  Search, Sprout, ArrowRight, Package, 
-  DollarSign, X, CheckCircle, RefreshCcw, 
-  Leaf, MoreHorizontal, Zap
+import {
+  Search,
+  Sprout,
+  ArrowRight,
+  Package,
+  DollarSign,
+  X,
+  CheckCircle,
+  RefreshCcw,
+  Leaf,
+  MoreHorizontal,
+  Zap,
 } from "lucide-react";
 import api from "../../api";
+import "./FarmerStock.css";
 
-// --- 0. CUSTOM ANIMATIONS & STYLES ---
-const CustomStyles = () => (
-  <style>{`
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-      50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
-    }
-    .card-entry { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
-    
-    /* Custom Scrollbar for modal */
-    .thin-scroll::-webkit-scrollbar { width: 6px; }
-    .thin-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
-    .thin-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-  `}</style>
-);
-
-// --- 1. DYNAMIC THEME ENGINE ---
+// --- Dynamic Theme Engine (kept from your original) ---
 const getTheme = (name = "") => {
   const n = name.toLowerCase();
-  if (n.includes("tomato") || n.includes("chilli") || n.includes("apple") || n.includes("red")) 
-    return { 
-      gradient: "from-rose-400 to-orange-500", 
-      bg: "bg-rose-50", 
+  if (
+    n.includes("tomato") ||
+    n.includes("chilli") ||
+    n.includes("apple") ||
+    n.includes("red")
+  )
+    return {
+      gradient: "from-rose-400 to-orange-500",
+      bg: "bg-rose-50",
       text: "text-rose-600",
       shadow: "group-hover:shadow-rose-200",
-      icon: "🍅"
+      icon: "🍅",
     };
-  if (n.includes("potato") || n.includes("onion") || n.includes("ginger")) 
-    return { 
-      gradient: "from-amber-400 to-yellow-500", 
-      bg: "bg-amber-50", 
+  if (n.includes("potato") || n.includes("onion") || n.includes("ginger"))
+    return {
+      gradient: "from-amber-400 to-yellow-500",
+      bg: "bg-amber-50",
       text: "text-amber-700",
       shadow: "group-hover:shadow-amber-200",
-      icon: "🥔"
+      icon: "🥔",
     };
-  if (n.includes("carrot") || n.includes("pumpkin")) 
-    return { 
-      gradient: "from-orange-400 to-red-400", 
-      bg: "bg-orange-50", 
+  if (n.includes("carrot") || n.includes("pumpkin"))
+    return {
+      gradient: "from-orange-400 to-red-400",
+      bg: "bg-orange-50",
       text: "text-orange-700",
       shadow: "group-hover:shadow-orange-200",
-      icon: "🥕"
+      icon: "🥕",
     };
-  if (n.includes("brinjal") || n.includes("beet") || n.includes("onion")) 
-    return { 
-      gradient: "from-purple-500 to-indigo-500", 
-      bg: "bg-purple-50", 
+  if (n.includes("brinjal") || n.includes("beet") || n.includes("onion"))
+    return {
+      gradient: "from-purple-500 to-indigo-500",
+      bg: "bg-purple-50",
       text: "text-purple-700",
       shadow: "group-hover:shadow-purple-200",
-      icon: "🍆"
+      icon: "🍆",
     };
-  
+
   // Default Green (Leafy)
-  return { 
-    gradient: "from-emerald-400 to-teal-500", 
-    bg: "bg-emerald-50", 
+  return {
+    gradient: "from-emerald-400 to-teal-500",
+    bg: "bg-emerald-50",
     text: "text-emerald-700",
     shadow: "group-hover:shadow-emerald-200",
-    icon: "🥬"
+    icon: "🥬",
   };
 };
 
@@ -1239,23 +1561,35 @@ export default function FarmerStock() {
   const [loading, setLoading] = useState(true);
   const [selectedStock, setSelectedStock] = useState(null);
   const [notification, setNotification] = useState(null);
-  
-  // Form
-  const [productForm, setProductForm] = useState({ name: "", price: "", quantity: "", description: "", image: "" });
+
+  const [productForm, setProductForm] = useState({
+    name: "",
+    price: "",
+    quantity: "",
+    description: "",
+    image: "",
+  });
 
   // Fetch
   const fetchStocks = async () => {
     setLoading(true);
     try {
       const res = await api.get("/admin/farmer-stock");
-      if (res.success) setStocks((res.stocks || []).filter((s) => s.approved));
-    } catch (err) { console.error(err); } 
-    finally { setTimeout(() => setLoading(false), 800); }
+      if (res.success)
+        setStocks((res.stocks || []).filter((s) => s.approved));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      // slight delay for smoother loading animation
+      setTimeout(() => setLoading(false), 800);
+    }
   };
 
-  useEffect(() => { fetchStocks(); }, []);
+  useEffect(() => {
+    fetchStocks();
+  }, []);
 
-  // Actions
+  // Open modal + prefill form
   const openModal = (stock) => {
     setSelectedStock(stock);
     setProductForm({
@@ -1269,218 +1603,295 @@ export default function FarmerStock() {
 
   const handleCreate = async () => {
     try {
-      await api.post("/admin/products", { ...productForm, type: "vegetable", price: Number(productForm.price) });
+      await api.post("/admin/products", {
+        ...productForm,
+        type: "vegetable",
+        price: Number(productForm.price),
+      });
       setNotification("Product Published Successfully!");
       setSelectedStock(null);
       fetchStocks();
       setTimeout(() => setNotification(null), 3000);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="min-h-screen  font-sans text-slate-800 pb-20 relative overflow-x-hidden" style={{backgroundColor:"#a5ddaaff",padding:"30px",borderRadius:"20px"}}>
-      <CustomStyles />
-      
-      {/* Background Decor */}
-      <div className="fixed top-0 left-0 w-full h-64 bg-gradient-to-b from-emerald-50/80 to-transparent -z-10"></div>
-      <div className="fixed -top-20 -right-20 w-96 h-96 bg-teal-100 rounded-full blur-3xl opacity-30 -z-10 animate-pulse"></div>
+    <div className="fs-page"  style={{borderRadius:"20px"}}>
+      <div className="fs-shell">
+        {/* Decorative glows */}
+        <div className="fs-glow fs-glow--top" />
+        <div className="fs-glow fs-glow--circle" />
 
-      {/* --- HEADER --- */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-emerald-400 shadow-lg shadow-slate-900/20">
-            <Sprout size={22} />
+        {/* HEADER */}
+        <header className="fs-header sticky top-0 z-30 flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="fs-header-icon">
+              <Sprout size={22} />
+            </div>
+            <div>
+              <h1 className="fs-header-title">Farmer Stock</h1>
+              <p className="fs-header-subtitle">Live Inventory Feed</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900 leading-tight">Farmer Stock</h1>
-            <p className="text-xs text-slate-500 font-medium">Live Inventory Feed</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3" >
-          <div className="hidden md:flex items-center bg-white  rounded-full px-4 py-1.5 shadow-sm focus-within:ring-2 focus-within:ring-emerald-500/30 transition-all">
-            <Search size={14} className="text-slate-400 mr-2"/>
-            <input placeholder="Search..." className="bg-transparent outline-none text-sm w-32 lg:w-48" />
-          </div>
-          <button onClick={fetchStocks} className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-full hover:bg-slate-50 text-slate-600 transition-transform active:rotate-180">
-            <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
-          </button>
-        </div>
-      </div>
 
-      {/* --- COMPACT CARD GRID --- */}
-      <div className="p-6 max-w-[1600px] mx-auto"  >
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5" >
-          
-          {loading ? (
-             [...Array(10)].map((_, i) => (
-               <div key={i} className="h-36 bg-white rounded-2xl border border-slate-100 animate-pulse shadow-sm"></div>
-             ))
-          ) : (
-            stocks.map((s, idx) => {
-              const theme = getTheme(s.vegetable);
-              return (
-                <div 
-                  key={s._id}
-                  onClick={() => openModal(s)}
-                  style={{ animationDelay: `${idx * 50}ms`,borderRadius:"20px",backgroundColor:"#f5eef5ff"}}
-                  
-                  className={`card-entry group relative  rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${theme.shadow} border border-slate-100 overflow-hidden`}
-                >
-                  {/* Gradient Border Top */}
-                  <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${theme.gradient}`} ></div>
-                  
-                  {/* Card Body */}
-                  <div className="flex justify-between items-start mb-2" >
-                    <div className={`w-11 h-11 rounded-2xl ${theme.bg} flex items-center justify-center text-2xl shadow-inner`} >
-                      {theme.icon} 
-                    </div>
-                    <div className="text-right">
-                       <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stock</span>
-                       <span className="inline-block bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-bold border border-slate-200">
-                         {s.quantity}
-                       </span>
-                    </div>
-                  </div>
+          <div className="flex items-center gap-3">
+            <div className="fs-search-bar hidden md:flex items-center">
+              <Search
+                size={14}
+                className="mr-2 text-slate-400"
+              />
+              <input
+                placeholder="Search..."
+                className="fs-search-input bg-transparent outline-none text-sm w-32 lg:w-48"
+              />
+            </div>
+            <button
+              onClick={fetchStocks}
+              className="fs-refresh-btn"
+            >
+              <RefreshCcw
+                size={16}
+                className={loading ? "animate-spin" : ""}
+              />
+            </button>
+          </div>
+        </header>
 
-                  <div className="mt-2" >
-                    <h3 className="font-bold text-slate-800 text-sm truncate">{s.vegetable}</h3>
-                    <p className="text-xs text-slate-400 truncate mb-4">From {s.farmer?.name}</p>
-                    
-                    <div className="flex items-center justify-between pt-3 border-t border-dashed border-slate-100">
-                      <div>
-                         <span className="text-[10px] text-slate-400 uppercase font-bold block">Base Price</span>
-                         <span className={`text-base font-bold ${theme.text}`}>₹{s.price}</span>
+        {/* GRID */}
+        <main className="fs-main p-6 max-w-[1600px] mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            {loading
+              ? [...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="fs-skeleton-card h-36 rounded-2xl border border-slate-100"
+                  />
+                ))
+              : stocks.map((s, idx) => {
+                  const theme = getTheme(s.vegetable);
+                  return (
+                    <div
+                      key={s._id}
+                      onClick={() => openModal(s)}
+                      style={{ animationDelay: `${idx * 50}ms` }}
+                      className={`fs-card card-entry group relative p-4 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${theme.shadow} border border-slate-100 overflow-hidden`}
+                    >
+                      {/* Gradient Border Top */}
+                      <div
+                        className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${theme.gradient}`}
+                      />
+
+                      <div className="flex justify-between items-start mb-2">
+                        <div
+                          className={`w-11 h-11 rounded-2xl ${theme.bg} flex items-center justify-center text-2xl shadow-inner`}
+                        >
+                          {theme.icon}
+                        </div>
+                        <div className="text-right">
+                          <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Stock
+                          </span>
+                          <span className="inline-block bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-bold border border-slate-200">
+                            {s.quantity}
+                          </span>
+                        </div>
                       </div>
-                      
-                      {/* Animated Button */}
-                      <button className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center transform translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 shadow-lg shadow-slate-900/30 hover:bg-emerald-500">
-                        <ArrowRight size={14} />
-                      </button>
-                      
-                      {/* Placeholder for non-hover state */}
-                      <div className="w-8 h-8 flex items-center justify-center group-hover:opacity-0 transition-opacity absolute right-4 bottom-4 text-slate-300">
-                        <MoreHorizontal size={18} />
+
+                      <div className="mt-2">
+                        <h3 className="font-bold text-slate-800 text-sm truncate">
+                          {s.vegetable}
+                        </h3>
+                        <p className="text-xs text-slate-400 truncate mb-4">
+                          From {s.farmer?.name}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-dashed border-slate-100">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                              Base Price
+                            </span>
+                            <span
+                              className={`text-base font-bold ${theme.text}`}
+                            >
+                              LKR {s.price}
+                            </span>
+                          </div>
+
+                          {/* Hover CTA */}
+                          <button className="fs-card-cta group-hover:translate-x-0 group-hover:opacity-100">
+                            <ArrowRight size={14} />
+                          </button>
+
+                          {/* Placeholder icon (non-hover) */}
+                          <div className="fs-card-placeholder group-hover:opacity-0">
+                            <MoreHorizontal size={18} />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })
+                  );
+                })}
+          </div>
+
+          {!loading && stocks.length === 0 && (
+            <div className="fs-empty">
+              <div className="fs-empty__icon">
+                <Package size={32} className="text-slate-300" />
+              </div>
+              <p className="fs-empty__text">
+                No incoming stock requests.
+              </p>
+            </div>
           )}
-        </div>
-        
-        {!loading && stocks.length === 0 && (
-          <div className="text-center py-24">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Package size={32} className="text-slate-300" />
-            </div>
-            <p className="text-slate-400 font-medium">No incoming stock requests.</p>
-          </div>
-        )}
-      </div>
+        </main>
 
-      {/* --- SLICK MODAL (Compact & Clean) --- */}
-      {selectedStock && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all">
-          <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-            
-            {/* Dynamic Header */}
-            <div className={`px-8 py-6 bg-gradient-to-r ${getTheme(selectedStock.vegetable).gradient} text-white relative overflow-hidden`}>
-              <div className="absolute top-0 right-0 p-4 opacity-20 transform rotate-12 translate-x-2 -translate-y-2">
-                <Leaf size={100} />
-              </div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-white/80 text-xs font-bold uppercase tracking-wider mb-1">Publishing</p>
-                    <h2 className="text-3xl font-bold">{selectedStock.vegetable}</h2>
+        {/* MODAL */}
+        {selectedStock && (
+          <div className="fs-modal-overlay">
+            <div className="fs-modal bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              {/* Dynamic Header */}
+              <div
+                className={`fs-modal-header px-8 py-6 bg-gradient-to-r ${getTheme(
+                  selectedStock.vegetable
+                ).gradient} text-white relative overflow-hidden`}
+              >
+                <div className="fs-modal-header__leaf">
+                  <Leaf size={100} />
+                </div>
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-white/80 text-xs font-bold uppercase tracking-wider mb-1">
+                        Publishing
+                      </p>
+                      <h2 className="text-3xl font-bold">
+                        {selectedStock.vegetable}
+                      </h2>
+                    </div>
+                    <button
+                      onClick={() => setSelectedStock(null)}
+                      className="fs-modal-close"
+                    >
+                      <X size={18} />
+                    </button>
                   </div>
-                  <button onClick={() => setSelectedStock(null)} className="bg-white/20 hover:bg-white/30 p-2 rounded-full backdrop-blur-md transition-colors">
-                    <X size={18} />
-                  </button>
-                </div>
-                <div className="flex gap-3 mt-4">
-                  <span className="bg-black/20 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1">
-                     👨‍🌾 {selectedStock.farmer?.name}
-                  </span>
-                  <span className="bg-black/20 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-medium">
-                     Ref: #{selectedStock._id.slice(-4)}
-                  </span>
+                  <div className="flex gap-3 mt-4">
+                    <span className="fs-modal-chip">
+                      👨‍🌾 {selectedStock.farmer?.name}
+                    </span>
+                    <span className="fs-modal-chip">
+                      Ref: #{selectedStock._id.slice(-4)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Body */}
-            <div className="p-8 space-y-5 overflow-y-auto thin-scroll" style={{borderRadius:"10px"}}>
-              
-              {/* Input Group 1 */}
-              <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Product Name</label>
-                <input 
-                  className="w-full mt-1.5 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:border-emerald-500 focus:bg-white outline-none transition-all"
-                  value={productForm.name}
-                  onChange={e => setProductForm({...productForm, name: e.target.value})}
-                />
-              </div>
-
-              {/* Input Group 2 (Row) */}
-              <div className="grid grid-cols-2 gap-5">
+              {/* Body */}
+              <div className="fs-modal-body p-8 space-y-5 overflow-y-auto thin-scroll">
                 <div>
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Price (₹)</label>
-                  <div className="relative mt-1.5">
-                    <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/>
-                    <input 
-                      type="number"
-                      className="w-full pl-10 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:border-emerald-500 focus:bg-white outline-none transition-all"
-                      value={productForm.price}
-                      onChange={e => setProductForm({...productForm, price: e.target.value})}
+                  <label className="fs-label">
+                    Product Name
+                  </label>
+                  <input
+                    className="fs-input mt-1.5"
+                    value={productForm.name}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-5">
+                  <div>
+                    <label className="fs-label">
+                      Price (LKR)
+                    </label>
+                    <div className="relative mt-1.5">
+                      <DollarSign
+                        size={16}
+                        className="fs-input-icon"
+                      />
+                      <input
+                        type="number"
+                        className="fs-input pl-10"
+                        value={productForm.price}
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            price: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="fs-label">
+                      Quantity
+                    </label>
+                    <input
+                      className="fs-input mt-1.5"
+                      value={productForm.quantity}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          quantity: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
+
                 <div>
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Quantity</label>
-                  <input 
-                    className="w-full mt-1.5 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:border-emerald-500 focus:bg-white outline-none transition-all"
-                    value={productForm.quantity}
-                    onChange={e => setProductForm({...productForm, quantity: e.target.value})}
+                  <label className="fs-label">
+                    Image URL
+                  </label>
+                  <input
+                    placeholder="https://..."
+                    className="fs-input mt-1.5"
+                    value={productForm.image}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        image: e.target.value,
+                      })
+                    }
                   />
                 </div>
-              </div>
 
-              {/* Input Group 3 */}
-              <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Image URL</label>
-                <input 
-                   placeholder="https://..."
-                   className="w-full mt-1.5 p-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-medium text-slate-600 focus:border-emerald-500 focus:bg-white outline-none transition-all"
-                   value={productForm.image}
-                   onChange={e => setProductForm({...productForm, image: e.target.value})}
-                />
-              </div>
-
-              {/* Action Button */}
-              <div className="pt-4">
-                <button 
-                  onClick={handleCreate}
-                  className="w-full py-4 rounded-2xl bg-slate-900 text-white font-bold text-base shadow-xl shadow-slate-900/20 hover:bg-emerald-600 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-                >
-                  <Zap size={18} className="fill-current" /> Publish to Store
-                </button>
+                <div className="pt-4">
+                  <button
+                    onClick={handleCreate}
+                    className="fs-publish-btn"
+                  >
+                    <Zap
+                      size={18}
+                      className="fill-current"
+                    />{" "}
+                    Publish to Store
+                  </button>
+                </div>
               </div>
             </div>
-
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Toast Notification */}
-      {notification && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-[60] animate-slideUp">
-          <div className="bg-emerald-500 rounded-full p-1"><CheckCircle size={14} /></div>
-          <span className="text-sm font-medium">{notification}</span>
-        </div>
-      )}
+        {/* TOAST */}
+        {notification && (
+          <div className="fs-toast animate-slideUp">
+            <div className="fs-toast__icon">
+              <CheckCircle size={14} />
+            </div>
+            <span className="fs-toast__text">
+              {notification}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

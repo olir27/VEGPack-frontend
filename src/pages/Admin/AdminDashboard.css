@@ -1,0 +1,155 @@
+:root {
+  --admin-bg: #020617;
+  --admin-shell-bg: rgba(15, 23, 42, 0.98);
+  --admin-border-soft: rgba(148, 163, 184, 0.55);
+  --admin-text-main: #e5e7eb;
+  --admin-text-soft: #9ca3af;
+  --admin-radius-xl: 26px;
+  --admin-sidebar-width: 250px;
+  --admin-shadow-soft: 0 22px 50px rgba(15, 23, 42, 0.85);
+}
+
+/* Overall background */
+.admin-layout {
+  background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: var(--admin-sidebar-width);
+  border-right: 1px solid rgba(148, 163, 184, 0.4);
+  background: linear-gradient(
+        135deg,
+        rgba(16, 185, 129, 0.15),
+        rgba(15, 23, 42, 0.9)
+      )
+      border-box,
+    linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.99))
+      padding-box;
+  border-radius: 0 24px 24px 0;
+  box-shadow: var(--admin-shadow-soft);
+  backdrop-filter: blur(26px);
+  color: var(--admin-text-main);
+}
+
+/* Logo area */
+.admin-logo-row {
+  padding-top: 34px;
+}
+
+.admin-logo-icon {
+  background: radial-gradient(circle at top, #22c55e, #15803d);
+  box-shadow: 0 10px 26px rgba(16, 185, 129, 0.6);
+}
+
+/* Nav buttons */
+.nav-btn {
+  color: rgba(226, 232, 240, 0.85);
+  background: transparent;
+  position: relative;
+}
+
+.nav-btn__icon {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.nav-btn__label {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+/* Active/nav hover states */
+.nav-btn--active {
+  background: radial-gradient(
+    circle at left,
+    rgba(16, 185, 129, 0.3),
+    transparent 55%
+  );
+  color: #f9fafb;
+}
+
+.nav-btn--active .nav-btn__icon {
+  color: #22c55e;
+}
+
+.nav-btn:hover:not(.nav-btn--active) {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* Active bar on left */
+.nav-btn__active-bar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 26px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22c55e, #0ea5e9);
+  transform: translateY(-50%);
+}
+
+/* Small-screen tooltip */
+.nav-btn__tooltip {
+  position: absolute;
+  left: 3.2rem;
+  background: rgba(15, 23, 42, 0.98);
+  color: #e5e7eb;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.85);
+  transition: opacity 0.18s ease-out;
+  z-index: 50;
+}
+
+.nav-btn:hover .nav-btn__tooltip {
+  opacity: 1;
+}
+
+/* Sidebar footer */
+.admin-sidebar-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.logout-btn {
+  color: #fee2e2;
+  background: transparent;
+  transition: all 0.16s ease-out;
+}
+
+.logout-btn:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f97373;
+}
+
+/* Main area */
+.admin-main {
+  position: relative;
+}
+
+/* Top soft gradient behind content */
+.admin-top-gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(16, 185, 129, 0.18),
+    transparent
+  );
+}
+
+/* Home wrapper */
+.dashboard-home {
+  max-width: 1220px;
+}
+
+/* Stat cards: add slight hover transform if needed */
+.stat-card {
+  transform: translateZ(0);
+  transition: transform 0.22s ease-out, box-shadow 0.22s ease-out;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+}

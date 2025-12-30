@@ -382,32 +382,337 @@
 
 
 
+// import { useState, useEffect, useMemo } from "react";
+// import api from "../../api";
+// import { 
+//   Star, CheckCircle, XCircle, MessageSquare, 
+//   Search, Trash2, RefreshCcw, ShieldAlert, 
+//   Filter, TrendingUp, BarChart3
+// } from "lucide-react";
+
+// // --- 0. CUSTOM STYLES ---
+// const CustomStyles = () => (
+//   <style>{`
+//     .card-enter { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+//     @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+//     .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+//     .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
+//   `}</style>
+// );
+
+// // --- 1. HELPERS ---
+// const RatingStars = ({ rating }) => (
+//   <div className="flex gap-0.5">
+//     {[1, 2, 3, 4, 5].map((star) => (
+//       <Star 
+//         key={star} 
+//         size={14} 
+//         className={star <= rating ? "fill-amber-400 text-amber-400 drop-shadow-sm" : "fill-slate-200 text-slate-200"} 
+//       />
+//     ))}
+//   </div>
+// );
+
+// export default function AdminReviews() {
+//   const [reviews, setReviews] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [filter, setFilter] = useState("pending");
+//   const [search, setSearch] = useState("");
+//   const [notification, setNotification] = useState(null);
+
+//   const fetchReviews = async () => {
+//     setLoading(true);
+//     try {
+//       const res = await api.get("/reviews/admin/all");
+//       if (res.reviews) setReviews(res.reviews);
+//     } catch (err) { console.error(err); } 
+//     finally { setTimeout(() => setLoading(false), 600); }
+//   };
+
+//   useEffect(() => { fetchReviews(); }, []);
+
+//   // --- ACTIONS ---
+//   const handleApprove = async (id) => {
+//     const updated = reviews.map(r => r._id === id ? { ...r, approved: true } : r);
+//     setReviews(updated);
+//     setNotification({ type: 'success', msg: 'Review Published Successfully' });
+//     try { await api.put(`/reviews/approve/${id}`); } catch (err) { fetchReviews(); }
+//     setTimeout(() => setNotification(null), 3000);
+//   };
+
+//   // const handleDelete = async (id) => {
+//   //   if(!confirm("Permanently delete this review?")) return;
+//   //   setReviews(reviews.filter(r => r._id !== id));
+//   //   setNotification({ type: 'error', msg: 'Review Deleted' });
+//   //   setTimeout(() => setNotification(null), 3000);
+//   // };
+
+//   const handleDelete = async (id) => {
+//   if (!confirm("Permanently delete this review?")) return;
+//   try {
+//     await api.delete(`/reviews/${id}`);
+//     setReviews((prev) => prev.filter((r) => r._id !== id));
+//     setNotification({ type: "error", msg: "Review Deleted" });
+//   } catch (err) {
+//     console.error("Delete review error:", err);
+//     setNotification({ type: "error", msg: "Delete failed" });
+//   } finally {
+//     setTimeout(() => setNotification(null), 3000);
+//   }
+// };
+
+//   // --- LOGIC ---
+//   const filtered = useMemo(() => {
+//     return reviews.filter(r => {
+//       const matchesSearch = (r.product?.name + r.customer?.name + r.comment).toLowerCase().includes(search.toLowerCase());
+//       if (filter === "all") return matchesSearch;
+//       if (filter === "approved") return matchesSearch && r.approved;
+//       if (filter === "pending") return matchesSearch && !r.approved;
+//       return true;
+//     });
+//   }, [reviews, search, filter]);
+
+//   const stats = {
+//     total: reviews.length,
+//     pending: reviews.filter(r => !r.approved).length,
+//     avg: (reviews.reduce((a,b) => a + b.rating, 0) / (reviews.length || 1)).toFixed(1)
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-indigo-50/30 font-sans text-slate-800 pb-20 selection:bg-indigo-200 selection:text-indigo-900">
+//       <CustomStyles />
+
+//       {/* --- HEADER (Dark Gradient) --- */}
+//       <header className="sticky top-0 z-30 glass-header border-b border-slate-700 shadow-lg text-white">
+//         <div className="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          
+//           {/* Brand Area */}
+//           <div>
+//             <h1 className="text-xl font-bold flex items-center gap-2 tracking-tight">
+//               <MessageSquare className="text-indigo-400" size={22} />
+//               Review <span className="text-indigo-200">Hub</span>
+//             </h1>
+//             <p className="text-xs text-slate-400 mt-1 font-medium">Monitor and moderate user feedback</p>
+//           </div>
+
+//           {/* Search Bar */}
+//           <div className="flex items-center gap-3 bg-slate-800/50 p-1 rounded-xl border border-slate-700/50 focus-within:border-indigo-500 transition-colors w-full md:w-auto">
+//              <Search className="text-slate-400 ml-2" size={16}/>
+//              <input 
+//                placeholder="Search customers or products..."
+//                value={search}
+//                onChange={e => setSearch(e.target.value)}
+//                className="bg-transparent border-none outline-none text-sm text-white placeholder-slate-500 w-full md:w-64 px-2"
+//              />
+//           </div>
+
+//           {/* Refresh */}
+//           <button onClick={fetchReviews} className="p-2.5 bg-slate-800 rounded-lg hover:bg-indigo-600 text-slate-300 hover:text-white transition-all">
+//             <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
+//           </button>
+//         </div>
+
+//         {/* Filter Tabs (Integrated into Header) */}
+//         <div className="px-6 flex gap-1 mt-1 overflow-x-auto">
+//           {[
+//             { id: 'pending', label: 'Pending Approval', count: stats.pending },
+//             { id: 'approved', label: 'Published', count: null },
+//             { id: 'all', label: 'All Reviews', count: stats.total },
+//           ].map(tab => (
+//             <button
+//               key={tab.id}
+//               onClick={() => setFilter(tab.id)}
+//               className={`px-4 py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${
+//                 filter === tab.id 
+//                   ? "border-indigo-400 text-white bg-slate-800/50 rounded-t-lg" 
+//                   : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-t-lg"
+//               }`}
+//             >
+//               {tab.label}
+//               {tab.count !== null && (
+//                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === tab.id ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
+//                   {tab.count}
+//                 </span>
+//               )}
+//             </button>
+//           ))}
+//         </div>
+//       </header>
+
+//       {/* --- STATS SECTION (Colorful Cards) --- */}
+//       <div className="px-6 py-8 max-w-[1600px] mx-auto">
+//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          
+//           {/* Card 1: Action Required */}
+//           <div className="relative overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-200 transform hover:-translate-y-1 transition-transform">
+//             <div className="absolute right-0 top-0 p-4 opacity-20"><ShieldAlert size={80} /></div>
+//             <p className="text-orange-100 text-xs font-bold uppercase tracking-wider mb-1">Pending Action</p>
+//             <div className="flex items-end gap-2">
+//               <h2 className="text-4xl font-bold">{stats.pending}</h2>
+//               <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">Reviews</span>
+//             </div>
+//           </div>
+
+//           {/* Card 2: Rating */}
+//           <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 transform hover:-translate-y-1 transition-transform">
+//             <div className="absolute right-0 top-0 p-4 opacity-20"><TrendingUp size={80} /></div>
+//             <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Avg. Rating</p>
+//             <div className="flex items-end gap-2">
+//               <h2 className="text-4xl font-bold">{stats.avg}</h2>
+//               <div className="flex pb-1.5 text-amber-300">
+//                  {[...Array(5)].map((_,i) => <Star key={i} size={14} className={i < Math.round(stats.avg) ? "fill-current" : "opacity-30"} />)}
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* Card 3: Total */}
+//           <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg shadow-emerald-200 transform hover:-translate-y-1 transition-transform">
+//              <div className="absolute right-0 top-0 p-4 opacity-20"><BarChart3 size={80} /></div>
+//              <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Total Feedback</p>
+//              <div className="flex items-end gap-2">
+//                <h2 className="text-4xl font-bold">{stats.total}</h2>
+//                <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">+12% this week</span>
+//              </div>
+//           </div>
+//         </div>
+
+//         {/* --- REVIEWS GRID --- */}
+//         {loading ? (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//              {[1,2,3].map(i => <div key={i} className="h-48 bg-white rounded-2xl border border-slate-200 animate-pulse" />)}
+//           </div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {filtered.map((r, i) => (
+//               <div 
+//                 key={r._id} 
+//                 style={{ animationDelay: `${i * 75}ms` }}
+//                 className={`card-enter group bg-white rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative overflow-hidden ${
+//                   !r.approved ? "border-amber-200 shadow-amber-100/50" : "border-slate-200 hover:border-indigo-300"
+//                 }`}
+//               >
+//                 {/* Status Strip */}
+//                 <div className={`h-1.5 w-full ${!r.approved ? 'bg-amber-400' : 'bg-emerald-500'}`}></div>
+
+//                 {/* Card Body */}
+//                 <div className="p-6 flex flex-col h-full">
+                  
+//                   {/* User Header */}
+//                   <div className="flex items-center justify-between mb-4">
+//                     <div className="flex items-center gap-3">
+//                       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-sm text-white ${
+//                         !r.approved ? 'bg-gradient-to-br from-amber-500 to-orange-500' : 'bg-gradient-to-br from-slate-700 to-slate-900'
+//                       }`}>
+//                         {r.customer?.name?.[0] || "U"}
+//                       </div>
+//                       <div>
+//                         <h4 className="text-sm font-bold text-slate-900">{r.customer?.name || "Guest"}</h4>
+//                         <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">{r.customer?.email ? "Verified Buyer" : "Guest"}</p>
+//                       </div>
+//                     </div>
+//                     <RatingStars rating={r.rating} />
+//                   </div>
+
+//                   {/* Comment Bubble */}
+//                   <div className="flex-1 mb-5">
+//                     <div className="relative">
+//                       <span className="absolute -top-2 -left-2 text-4xl text-slate-100 font-serif leading-none">“</span>
+//                       <p className="text-sm text-slate-600 leading-relaxed relative z-10 italic line-clamp-3">
+//                          {r.comment}
+//                       </p>
+//                     </div>
+//                   </div>
+
+//                   {/* Product Footprint */}
+//                   <div className="bg-slate-50 rounded-lg p-2.5 mb-4 border border-slate-100 flex items-center gap-2">
+//                     <div className="w-1 h-8 bg-indigo-500 rounded-full"></div>
+//                     <div className="overflow-hidden">
+//                        <p className="text-[10px] font-bold text-slate-400 uppercase">Product Ref</p>
+//                        <p className="text-xs font-bold text-indigo-900 truncate w-full">{r.product?.name || "Product Removed"}</p>
+//                     </div>
+//                   </div>
+
+//                   {/* Action Buttons */}
+//                   <div className="flex items-center gap-2 pt-2">
+//                     {!r.approved ? (
+//                       <button 
+//                         onClick={() => handleApprove(r._id)}
+//                         className="flex-1 py-2 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+//                       >
+//                         <CheckCircle size={14} /> Approve
+//                       </button>
+//                     ) : (
+//                       <div className="flex-1 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold rounded-lg flex items-center justify-center gap-2 cursor-default">
+//                         <CheckCircle size={14} /> Published
+//                       </div>
+//                     )}
+                    
+//                     <button 
+//                       onClick={() => handleDelete(r._id)}
+//                       className="p-2 text-slate-400 border border-slate-200 rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all"
+//                       title="Delete Review"
+//                     >
+//                       <Trash2 size={16} />
+//                     </button>
+//                   </div>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+        
+//         {!loading && filtered.length === 0 && (
+//           <div className="flex flex-col items-center justify-center py-24 opacity-50">
+//             <div className="bg-white p-4 rounded-full shadow-md mb-3"><Filter size={32} className="text-slate-300"/></div>
+//             <p className="text-slate-500 font-medium">No reviews found.</p>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Toast Notification */}
+//       {notification && (
+//         <div className={`fixed bottom-8 right-8 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white font-bold text-sm animate-bounce z-50 ${
+//           notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
+//         }`}>
+//           {notification.type === 'success' ? <CheckCircle size={18} /> : <Trash2 size={18} />}
+//           {notification.msg}
+//         </div>
+//       )}
+
+//     </div>
+//   );
+// }
+
+
 import { useState, useEffect, useMemo } from "react";
 import api from "../../api";
-import { 
-  Star, CheckCircle, XCircle, MessageSquare, 
-  Search, Trash2, RefreshCcw, ShieldAlert, 
-  Filter, TrendingUp, BarChart3
+import {
+  Star,
+  CheckCircle,
+  XCircle,
+  MessageSquare,
+  Search,
+  Trash2,
+  RefreshCcw,
+  ShieldAlert,
+  Filter,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
+import "./Reviews.css";
 
-// --- 0. CUSTOM STYLES ---
-const CustomStyles = () => (
-  <style>{`
-    .card-enter { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
-  `}</style>
-);
-
-// --- 1. HELPERS ---
+// --- Helpers ---
 const RatingStars = ({ rating }) => (
   <div className="flex gap-0.5">
     {[1, 2, 3, 4, 5].map((star) => (
-      <Star 
-        key={star} 
-        size={14} 
-        className={star <= rating ? "fill-amber-400 text-amber-400 drop-shadow-sm" : "fill-slate-200 text-slate-200"} 
+      <Star
+        key={star}
+        size={14}
+        className={
+          star <= rating
+            ? "fill-amber-400 text-amber-400 drop-shadow-sm"
+            : "fill-slate-200 text-slate-200"
+        }
       />
     ))}
   </div>
@@ -425,32 +730,60 @@ export default function AdminReviews() {
     try {
       const res = await api.get("/reviews/admin/all");
       if (res.reviews) setReviews(res.reviews);
-    } catch (err) { console.error(err); } 
-    finally { setTimeout(() => setLoading(false), 600); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTimeout(() => setLoading(false), 600);
+    }
   };
 
-  useEffect(() => { fetchReviews(); }, []);
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
-  // --- ACTIONS ---
+  // --- Actions ---
   const handleApprove = async (id) => {
-    const updated = reviews.map(r => r._id === id ? { ...r, approved: true } : r);
+    const updated = reviews.map((r) =>
+      r._id === id ? { ...r, approved: true } : r
+    );
     setReviews(updated);
-    setNotification({ type: 'success', msg: 'Review Published Successfully' });
-    try { await api.put(`/reviews/approve/${id}`); } catch (err) { fetchReviews(); }
+    setNotification({
+      type: "success",
+      msg: "Review Published Successfully",
+    });
+    try {
+      await api.put(`/reviews/approve/${id}`);
+    } catch (err) {
+      fetchReviews();
+    }
     setTimeout(() => setNotification(null), 3000);
   };
 
   const handleDelete = async (id) => {
-    if(!confirm("Permanently delete this review?")) return;
-    setReviews(reviews.filter(r => r._id !== id));
-    setNotification({ type: 'error', msg: 'Review Deleted' });
-    setTimeout(() => setNotification(null), 3000);
+    if (!confirm("Permanently delete this review?")) return;
+    try {
+      await api.delete(`/reviews/${id}`);
+      setReviews((prev) => prev.filter((r) => r._id !== id));
+      setNotification({ type: "error", msg: "Review Deleted" });
+    } catch (err) {
+      console.error("Delete review error:", err);
+      setNotification({ type: "error", msg: "Delete failed" });
+    } finally {
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
-  // --- LOGIC ---
+  // --- Filtering ---
   const filtered = useMemo(() => {
-    return reviews.filter(r => {
-      const matchesSearch = (r.product?.name + r.customer?.name + r.comment).toLowerCase().includes(search.toLowerCase());
+    return reviews.filter((r) => {
+      const text =
+        (r.product?.name || "") +
+        (r.customer?.name || "") +
+        (r.comment || "");
+      const matchesSearch = text
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
       if (filter === "all") return matchesSearch;
       if (filter === "approved") return matchesSearch && r.approved;
       if (filter === "pending") return matchesSearch && !r.approved;
@@ -460,63 +793,81 @@ export default function AdminReviews() {
 
   const stats = {
     total: reviews.length,
-    pending: reviews.filter(r => !r.approved).length,
-    avg: (reviews.reduce((a,b) => a + b.rating, 0) / (reviews.length || 1)).toFixed(1)
+    pending: reviews.filter((r) => !r.approved).length,
+    avg: (
+      reviews.reduce((a, b) => a + (b.rating || 0), 0) /
+      (reviews.length || 1)
+    ).toFixed(1),
   };
 
   return (
-    <div className="min-h-screen bg-indigo-50/30 font-sans text-slate-800 pb-20 selection:bg-indigo-200 selection:text-indigo-900">
-      <CustomStyles />
-
-      {/* --- HEADER (Dark Gradient) --- */}
-      <header className="sticky top-0 z-30 glass-header border-b border-slate-700 shadow-lg text-white">
-        <div className="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          
-          {/* Brand Area */}
+    <div className="reviews-page min-h-screen font-sans text-slate-800 pb-20 selection:bg-indigo-200 selection:text-indigo-900"  style={{borderRadius:"20px"}}>
+      {/* HEADER */}
+      <header className="sticky top-0 z-30 glass-header border-b border-slate-700 shadow-lg text-white" >
+        <div className="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-5" >
+          {/* Brand */}
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2 tracking-tight">
               <MessageSquare className="text-indigo-400" size={22} />
               Review <span className="text-indigo-200">Hub</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Monitor and moderate user feedback</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">
+              Monitor and moderate user feedback
+            </p>
           </div>
 
-          {/* Search Bar */}
+          {/* Search */}
           <div className="flex items-center gap-3 bg-slate-800/50 p-1 rounded-xl border border-slate-700/50 focus-within:border-indigo-500 transition-colors w-full md:w-auto">
-             <Search className="text-slate-400 ml-2" size={16}/>
-             <input 
-               placeholder="Search customers or products..."
-               value={search}
-               onChange={e => setSearch(e.target.value)}
-               className="bg-transparent border-none outline-none text-sm text-white placeholder-slate-500 w-full md:w-64 px-2"
-             />
+            <Search className="text-slate-400 ml-2" size={16} />
+            <input
+              placeholder="Search customers or products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent border-none outline-none text-sm text-white placeholder-slate-500 w-full md:w-64 px-2"
+            />
           </div>
 
           {/* Refresh */}
-          <button onClick={fetchReviews} className="p-2.5 bg-slate-800 rounded-lg hover:bg-indigo-600 text-slate-300 hover:text-white transition-all">
-            <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
+          <button
+            onClick={fetchReviews}
+            className="p-2.5 bg-slate-800 rounded-lg hover:bg-indigo-600 text-slate-300 hover:text-white transition-all"
+          >
+            <RefreshCcw
+              size={18}
+              className={loading ? "animate-spin" : ""}
+            />
           </button>
         </div>
 
-        {/* Filter Tabs (Integrated into Header) */}
+        {/* Filter Tabs */}
         <div className="px-6 flex gap-1 mt-1 overflow-x-auto">
           {[
-            { id: 'pending', label: 'Pending Approval', count: stats.pending },
-            { id: 'approved', label: 'Published', count: null },
-            { id: 'all', label: 'All Reviews', count: stats.total },
-          ].map(tab => (
+            {
+              id: "pending",
+              label: "Pending Approval",
+              count: stats.pending,
+            },
+            { id: "approved", label: "Published", count: null },
+            { id: "all", label: "All Reviews", count: stats.total },
+          ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id)}
               className={`px-4 py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${
-                filter === tab.id 
-                  ? "border-indigo-400 text-white bg-slate-800/50 rounded-t-lg" 
+                filter === tab.id
+                  ? "border-indigo-400 text-white bg-slate-800/50 rounded-t-lg"
                   : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-t-lg"
               }`}
             >
               {tab.label}
               {tab.count !== null && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === tab.id ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    filter === tab.id
+                      ? "bg-indigo-500 text-white"
+                      : "bg-slate-700 text-slate-400"
+                  }`}
+                >
                   {tab.count}
                 </span>
               )}
@@ -525,103 +876,153 @@ export default function AdminReviews() {
         </div>
       </header>
 
-      {/* --- STATS SECTION (Colorful Cards) --- */}
+      {/* STATS */}
       <div className="px-6 py-8 max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          
-          {/* Card 1: Action Required */}
+          {/* Pending */}
           <div className="relative overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-200 transform hover:-translate-y-1 transition-transform">
-            <div className="absolute right-0 top-0 p-4 opacity-20"><ShieldAlert size={80} /></div>
-            <p className="text-orange-100 text-xs font-bold uppercase tracking-wider mb-1">Pending Action</p>
+            <div className="absolute right-0 top-0 p-4 opacity-20">
+              <ShieldAlert size={80} />
+            </div>
+            <p className="text-orange-100 text-xs font-bold uppercase tracking-wider mb-1">
+              Pending Action
+            </p>
             <div className="flex items-end gap-2">
               <h2 className="text-4xl font-bold">{stats.pending}</h2>
-              <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">Reviews</span>
+              <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">
+                Reviews
+              </span>
             </div>
           </div>
 
-          {/* Card 2: Rating */}
+          {/* Avg Rating */}
           <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 transform hover:-translate-y-1 transition-transform">
-            <div className="absolute right-0 top-0 p-4 opacity-20"><TrendingUp size={80} /></div>
-            <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Avg. Rating</p>
+            <div className="absolute right-0 top-0 p-4 opacity-20">
+              <TrendingUp size={80} />
+            </div>
+            <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">
+              Avg. Rating
+            </p>
             <div className="flex items-end gap-2">
               <h2 className="text-4xl font-bold">{stats.avg}</h2>
               <div className="flex pb-1.5 text-amber-300">
-                 {[...Array(5)].map((_,i) => <Star key={i} size={14} className={i < Math.round(stats.avg) ? "fill-current" : "opacity-30"} />)}
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    className={
+                      i < Math.round(stats.avg)
+                        ? "fill-current"
+                        : "opacity-30"
+                    }
+                  />
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Card 3: Total */}
+          {/* Total */}
           <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg shadow-emerald-200 transform hover:-translate-y-1 transition-transform">
-             <div className="absolute right-0 top-0 p-4 opacity-20"><BarChart3 size={80} /></div>
-             <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Total Feedback</p>
-             <div className="flex items-end gap-2">
-               <h2 className="text-4xl font-bold">{stats.total}</h2>
-               <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">+12% this week</span>
-             </div>
+            <div className="absolute right-0 top-0 p-4 opacity-20">
+              <BarChart3 size={80} />
+            </div>
+            <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">
+              Total Feedback
+            </p>
+            <div className="flex items-end gap-2">
+              <h2 className="text-4xl font-bold">{stats.total}</h2>
+              <span className="text-sm font-medium bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">
+                +12% this week
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* --- REVIEWS GRID --- */}
+        {/* REVIEWS GRID */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             {[1,2,3].map(i => <div key={i} className="h-48 bg-white rounded-2xl border border-slate-200 animate-pulse" />)}
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-48 bg-white rounded-2xl border border-slate-200 animate-pulse"
+              />
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((r, i) => (
-              <div 
-                key={r._id} 
+              <div
+                key={r._id}
                 style={{ animationDelay: `${i * 75}ms` }}
-                className={`card-enter group bg-white rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative overflow-hidden ${
-                  !r.approved ? "border-amber-200 shadow-amber-100/50" : "border-slate-200 hover:border-indigo-300"
+                className={`card-enter review-card group bg-white rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative overflow-hidden ${
+                  !r.approved
+                    ? "border-amber-200 shadow-amber-100/50"
+                    : "border-slate-200 hover:border-indigo-300"
                 }`}
               >
-                {/* Status Strip */}
-                <div className={`h-1.5 w-full ${!r.approved ? 'bg-amber-400' : 'bg-emerald-500'}`}></div>
+                {/* Status strip */}
+                <div
+                  className={`h-1.5 w-full ${
+                    !r.approved ? "bg-amber-400" : "bg-emerald-500"
+                  }`}
+                />
 
-                {/* Card Body */}
                 <div className="p-6 flex flex-col h-full">
-                  
-                  {/* User Header */}
+                  {/* Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-sm text-white ${
-                        !r.approved ? 'bg-gradient-to-br from-amber-500 to-orange-500' : 'bg-gradient-to-br from-slate-700 to-slate-900'
-                      }`}>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-sm text-white ${
+                          !r.approved
+                            ? "bg-gradient-to-br from-amber-500 to-orange-500"
+                            : "bg-gradient-to-br from-slate-700 to-slate-900"
+                        }`}
+                      >
                         {r.customer?.name?.[0] || "U"}
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900">{r.customer?.name || "Guest"}</h4>
-                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">{r.customer?.email ? "Verified Buyer" : "Guest"}</p>
+                        <h4 className="text-sm font-bold text-slate-900">
+                          {r.customer?.name || "Guest"}
+                        </h4>
+                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                          {r.customer?.email
+                            ? "Verified Buyer"
+                            : "Guest"}
+                        </p>
                       </div>
                     </div>
                     <RatingStars rating={r.rating} />
                   </div>
 
-                  {/* Comment Bubble */}
+                  {/* Comment */}
                   <div className="flex-1 mb-5">
                     <div className="relative">
-                      <span className="absolute -top-2 -left-2 text-4xl text-slate-100 font-serif leading-none">“</span>
+                      <span className="absolute -top-2 -left-2 text-4xl text-slate-100 font-serif leading-none">
+                        “
+                      </span>
                       <p className="text-sm text-slate-600 leading-relaxed relative z-10 italic line-clamp-3">
-                         {r.comment}
+                        {r.comment}
                       </p>
                     </div>
                   </div>
 
-                  {/* Product Footprint */}
+                  {/* Product ref */}
                   <div className="bg-slate-50 rounded-lg p-2.5 mb-4 border border-slate-100 flex items-center gap-2">
-                    <div className="w-1 h-8 bg-indigo-500 rounded-full"></div>
+                    <div className="w-1 h-8 bg-indigo-500 rounded-full" />
                     <div className="overflow-hidden">
-                       <p className="text-[10px] font-bold text-slate-400 uppercase">Product Ref</p>
-                       <p className="text-xs font-bold text-indigo-900 truncate w-full">{r.product?.name || "Product Removed"}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">
+                        Product Ref
+                      </p>
+                      <p className="text-xs font-bold text-indigo-900 truncate w-full">
+                        {r.product?.name || "Product Removed"}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Actions */}
                   <div className="flex items-center gap-2 pt-2">
                     {!r.approved ? (
-                      <button 
+                      <button
                         onClick={() => handleApprove(r._id)}
                         className="flex-1 py-2 bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
                       >
@@ -632,8 +1033,8 @@ export default function AdminReviews() {
                         <CheckCircle size={14} /> Published
                       </div>
                     )}
-                    
-                    <button 
+
+                    <button
                       onClick={() => handleDelete(r._id)}
                       className="p-2 text-slate-400 border border-slate-200 rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all"
                       title="Delete Review"
@@ -646,25 +1047,36 @@ export default function AdminReviews() {
             ))}
           </div>
         )}
-        
+
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 opacity-50">
-            <div className="bg-white p-4 rounded-full shadow-md mb-3"><Filter size={32} className="text-slate-300"/></div>
-            <p className="text-slate-500 font-medium">No reviews found.</p>
+            <div className="bg-white p-4 rounded-full shadow-md mb-3">
+              <Filter size={32} className="text-slate-300" />
+            </div>
+            <p className="text-slate-500 font-medium">
+              No reviews found.
+            </p>
           </div>
         )}
       </div>
 
-      {/* Toast Notification */}
+      {/* Toast */}
       {notification && (
-        <div className={`fixed bottom-8 right-8 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white font-bold text-sm animate-bounce z-50 ${
-          notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
-        }`}>
-          {notification.type === 'success' ? <CheckCircle size={18} /> : <Trash2 size={18} />}
+        <div
+          className={`fixed bottom-8 right-8 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white font-bold text-sm animate-bounce z-50 ${
+            notification.type === "success"
+              ? "bg-emerald-600"
+              : "bg-rose-600"
+          }`}
+        >
+          {notification.type === "success" ? (
+            <CheckCircle size={18} />
+          ) : (
+            <Trash2 size={18} />
+          )}
           {notification.msg}
         </div>
       )}
-
     </div>
   );
 }

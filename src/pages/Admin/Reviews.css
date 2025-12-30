@@ -1,0 +1,91 @@
+:root {
+  --rv-bg: #020617;
+  --rv-text-main: #e5e7eb;
+  --rv-text-soft: #9ca3af;
+  --rv-border-soft: rgba(148, 163, 184, 0.55);
+  --rv-radius-xl: 24px;
+  --rv-shadow-soft: 0 22px 50px rgba(15, 23, 42, 0.85);
+}
+
+/* Page background */
+.reviews-page {
+  background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+}
+
+/* Glass header (replaces inline .glass-header styles) */
+.glass-header {
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(16px);
+}
+
+/* Entry animation for cards (was .card-enter + inline keyframes) */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Multiline clamp */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Modern review card styling */
+.review-card {
+  position: relative;
+  border-radius: 20px;
+  background: radial-gradient(
+      circle at top left,
+      rgba(148, 163, 184, 0.14),
+      transparent 60%
+    ),
+    #f9fafb;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+  transform: translateZ(0);
+  overflow: hidden;
+}
+
+/* Subtle gradient ring on hover */
+.review-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(129, 140, 248, 0.85),
+    rgba(56, 189, 248, 0.85)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-out;
+}
+
+.review-card:hover::before {
+  opacity: 1;
+}
+
+/* Stronger shadow when hovered (in addition to Tailwind classes) */
+.review-card:hover {
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.25);
+}
