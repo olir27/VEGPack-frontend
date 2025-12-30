@@ -22,7 +22,7 @@ import ReviewsSection from "../components/ReviewsSection";
 import Footer from "../components/Footer";
 import api from "../api";
 import { useAuth } from "../AuthContext";
-import ImgMain from "src/assets/31670091-removebg-preview.png"
+import ImgMain from "../assets/31670091-removebg-preview.png"
 
 // 5 images for ABOUT carousel (you can replace with imported assets)
 const aboutImages = [
