@@ -22,6 +22,7 @@ import ReviewsSection from "../components/ReviewsSection";
 import Footer from "../components/Footer";
 import api from "../api";
 import { useAuth } from "../AuthContext";
+import ImgMain from "src/assets/31670091-removebg-preview.png"
 
 // 5 images for ABOUT carousel (you can replace with imported assets)
 const aboutImages = [
@@ -216,7 +217,7 @@ export default function Home() {
               className="relative z-10 w-full max-w-md"
             >
               <img
-                src="src/assets/31670091-removebg-preview.png"
+                src={ImgMain}
                 alt="Veg Basket"
                 className="w-full drop-shadow-2xl -mt-20 mb-4"
               />
